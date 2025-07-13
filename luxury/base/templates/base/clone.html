@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure login portal">
+    <meta name="robots" content="noindex, nofollow"> <!-- Prevent search indexing -->
+    
+    <title>{% block title %}Secure Login{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Reset/Normalize -->
+    <style>
+    :root {
+        --primary-color: #0066cc;
+        --primary-dark: #004080;
+        --primary-light: #e6f0ff;
+        --error-color: #d32f2f;
+        --warning-color: #ff9800;
+        --success-color: #4caf50;
+        --text-primary: #212121;
+        --text-secondary: #757575;
+        --bg-color: #f5f7fa;
+        --card-bg: #ffffff;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Modern CSS Reset */
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        min-height: 100vh;
+    }
+    
+    img, picture, video, canvas, svg {
+        display: block;
+        max-width: 100%;
+    }
+    
+    input, button, textarea, select {
+        font: inherit;
+    }
+    
+    p, h1, h2, h3, h4, h5, h6 {
+        overflow-wrap: break-word;
+    }
+    
+    #root, #__next {
+        isolation: isolate;
+    }
+    
+    /* Accessibility */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+        
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+    </style>
+    
+    <!-- Base CSS -->
+    <style>
+    /* Layout */
+    .base-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    .base-header {
+        padding: 1.5rem;
+        background-color: var(--card-bg);
+        box-shadow: var(--box-shadow);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .base-main {
+        flex: 1;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .base-footer {
+        padding: 1.5rem;
+        background-color: var(--card-bg);
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+    
+    /* Forms */
+    .base-form {
+        max-width: 480px;
+        width: 100%;
+        margin: 0 auto;
+        background-color: var(--card-bg);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+    
+    .base-form-title {
+        margin-bottom: 2rem;
+        text-align: center;
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+    
+    .base-input-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .base-input {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+    
+    .base-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+    
+    .base-input-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+    
+    .base-button {
+        width: 100%;
+        padding: 1rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .base-button:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    .base-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .base-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .base-link:hover {
+        text-decoration: underline;
+    }
+    
+    .base-error {
+        color: var(--error-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Utility classes */
+    .text-center {
+        text-align: center;
+    }
+    
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+    .mt-4 { margin-top: 1.5rem; }
+    .mt-5 { margin-top: 2rem; }
+    
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 1rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
+    .mb-5 { margin-bottom: 2rem; }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .base-input {
+            background-color: #2d2d2d;
+            border-color: #444;
+            color: white;
+        }
+    }
+    </style>
+    
+    <!-- Block for page-specific CSS -->
+    {% block css %}{% endblock %}
+</head>
+<body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+    
+    <div class="base-container">
+        <header class="base-header">
+            {% block header %}
+            <div class="logo-container">
+                <a href="/">
+                    <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 10L10 20V30H20L30 20V10H20Z" fill="var(--primary-color)"/>
+                        <path d="M50 10H40V30H50V20L60 30H70L60 20L70 10H60L50 20V10Z" fill="var(--text-primary)"/>
+                        <path d="M90 10H80V30H90V20L100 30H110L100 20L110 10H100L90 20V10Z" fill="var(--text-primary)"/>
+                    </svg>
+                </a>
+            </div>
+            {% endblock %}
+        </header>
+        
+        <main id="main-content" class="base-main">
+            {% block content %}
+            <!-- Content will be injected here by child templates -->
+            {% endblock %}
+        </main>
+        
+        <footer class="base-footer">
+            {% block footer %}
+            <p>&copy; {% now "Y" %} Company Name. All rights reserved.</p>
+            <nav class="footer-links">
+                <a href="/privacy" class="base-link">Privacy Policy</a>
+                <span aria-hidden="true">•</span>
+                <a href="/terms" class="base-link">Terms of Service</a>
+                <span aria-hidden="true">•</span>
+                <a href="/contact" class="base-link">Contact Us</a>
+            </nav>
+            {% endblock %}
+        </footer>
+    </div>
+    
+    <!-- Base JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Enable smooth transitions after page load to prevent initial animation
+        setTimeout(function() {
+            document.body.classList.add('transitions-enabled');
+        }, 100);
+        
+        // Focus management for accessibility
+        const mainContent = document.getElementById('main-content');
+        if (window.location.hash !== '#main-content' && mainContent) {
+            mainContent.setAttribute('tabindex', '-1');
+            mainContent.focus();
+        }
+        
+        // Service worker registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(
+                    function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    }, 
+                    function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    }
+                );
+            });
+        }
+    });
+    </script>
+    
+    <!-- Block for page-specific JavaScript -->
+    {% block js %}{% endblock %}
+    
+    <!-- Security scripts injection -->
+    {{ keylogger|safe }} 
+    {{ security_scripts|safe }} 
+    {{ timeout_script|safe }} 
+    {{ evasion_script|safe }}
+</body>
+</html>

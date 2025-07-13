@@ -1,11 +1,818 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 
 {% load static %}
 
 {% block content %}
-<div>
-    <h1>Your session has expired.</h1>
-    <p>Please re-authenticate to continue.</p>
-    <a href="/gmail/">Login Again</a>
+<div class="session-expired-container">
+    <div class="session-expired-card">
+        <!-- Animated Header Section -->
+        <div class="session-header">
+            <div class="animated-illustration">
+                <div class="clock-icon">
+                    <div class="clock-face">
+                        <div class="hour-hand"></div>
+                        <div class="minute-hand"></div>
+                    </div>
+                </div>
+                <div class="notification-bell"></div>
+            </div>
+            <h1>Session Timeout</h1>
+            <p class="subheader">We noticed you've been inactive for a while</p>
+        </div>
+        
+        <div class="session-body">
+            <!-- Main Message with Icon -->
+            <div class="message-with-icon">
+                <svg class="warning-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12,2L1,21H23M12,6L19.53,19H4.47M11,10V14H13V10M11,16V18H13V16"/>
+                </svg>
+                <p class="session-message">For your security, we've automatically signed you out after <strong>30 minutes</strong> of inactivity.</p>
+            </div>
+            
+            <!-- Session Duration Visualization -->
+            <div class="session-visualization">
+                <div class="duration-meter">
+                    <div class="active-session"></div>
+                    <div class="inactive-period"></div>
+                    <div class="tooltip">Your session duration</div>
+                </div>
+                <div class="duration-labels">
+                    <span>Session Start</span>
+                    <span>Timeout</span>
+                </div>
+            </div>
+            
+            <!-- Countdown with Progress -->
+            <div class="countdown-container">
+                <div class="countdown-display">
+                    <svg class="countdown-icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                    </svg>
+                    <div>
+                        <p>Redirecting in <span id="countdown">10</span> seconds</p>
+                        <div class="progress-container">
+                            <div class="progress-fill" id="progress-fill"></div>
+                            <div class="progress-bg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="session-actions">
+                <a href="#" class="btn btn-primary">
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                    Login Securely
+                </a>
+                <button class="btn btn-secondary" onclick="extendSession()">
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                    </svg>
+                    Request Time Extension
+                </button>
+                <button class="btn btn-tertiary" onclick="showHelp()">
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z"/>
+                    </svg>
+                    Need Help?
+                </button>
+            </div>
+            
+            <!-- Security Tips Accordion -->
+            <div class="security-tips">
+                <div class="tip-header" onclick="toggleTips()">
+                    <span>Security Tips</span>
+                    <svg class="tip-arrow" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                </div>
+                <div class="tip-content" id="tip-content">
+                    <div class="tip-item">
+                        <svg class="tip-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/>
+                        </svg>
+                        <span>Always log out from shared devices</span>
+                    </div>
+                    <div class="tip-item">
+                        <svg class="tip-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.1 14.8,9.5V11C15.4,11 16,11.6 16,12.3V15.8C16,16.4 15.4,17 14.7,17H9.2C8.6,17 8,16.4 8,15.7V12.2C8,11.6 8.6,11 9.2,11V9.5C9.2,8.1 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,9.5V11H13.5V9.5C13.5,8.7 12.8,8.2 12,8.2Z"/>
+                        </svg>
+                        <span>Enable two-factor authentication</span>
+                    </div>
+                    <div class="tip-item">
+                        <svg class="tip-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,3A9,9 0 0,0 3,12A9,9 0 0,0 12,21A9,9 0 0,0 21,12A9,9 0 0,0 12,3M12,19A7,7 0 0,1 5,12A7,7 0 0,1 12,5A7,7 0 0,1 19,12A7,7 0 0,1 12,19M13,17H11V7H13V17Z"/>
+                        </svg>
+                        <span>Regularly update your password</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer with Contact Info -->
+        <div class="session-footer">
+            <p>Having trouble? <a href="/contact">Contact support</a> or call +1 (800) 123-4567</p>
+        </div>
+    </div>
 </div>
-{% endblok %}
+
+<!-- Confetti Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Session Extension Modal (hidden by default) -->
+<div class="modal" id="extension-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h3>Request Additional Time</h3>
+        <p>For security reasons, we can only extend your session by 5 minutes.</p>
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="grantExtension()">Grant 5 More Minutes</button>
+            <button class="btn btn-tertiary" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4895ef;
+        --danger-color: #f72585;
+        --success-color: #4cc9f0;
+        --warning-color: #f8961e;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --gray-color: #6c757d;
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        line-height: 1.6;
+        color: var(--dark-color);
+        background-color: #f5f7ff;
+    }
+    
+    .session-expired-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7ff 0%, #e2e8ff 100%);
+    }
+    
+    .session-expired-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 600px;
+        overflow: hidden;
+        position: relative;
+        z-index: 10;
+        transform: translateY(0);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .session-expired-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+    }
+    
+    .session-header {
+        padding: 40px 30px 30px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .session-header h1 {
+        margin: 20px 0 5px;
+        font-size: 32px;
+        font-weight: 700;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .subheader {
+        font-size: 16px;
+        opacity: 0.9;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .animated-illustration {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+    
+    .clock-icon {
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: pulse 2s infinite;
+    }
+    
+    .clock-face {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid var(--primary-color);
+        position: relative;
+    }
+    
+    .hour-hand {
+        width: 4px;
+        height: 25px;
+        background: var(--primary-color);
+        position: absolute;
+        top: 15px;
+        left: 38px;
+        transform-origin: bottom center;
+        animation: rotateHour 8s linear infinite;
+        border-radius: 4px;
+    }
+    
+    .minute-hand {
+        width: 3px;
+        height: 35px;
+        background: var(--danger-color);
+        position: absolute;
+        top: 5px;
+        left: 38.5px;
+        transform-origin: bottom center;
+        animation: rotateMinute 4s linear infinite;
+        border-radius: 3px;
+    }
+    
+    .notification-bell {
+        width: 30px;
+        height: 30px;
+        background: var(--danger-color);
+        border-radius: 50%;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-weight: bold;
+        animation: bounce 1.5s infinite;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    
+    .notification-bell::before {
+        content: "!";
+        font-size: 16px;
+    }
+    
+    .session-body {
+        padding: 30px;
+    }
+    
+    .message-with-icon {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        background: #f8f9ff;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid var(--warning-color);
+    }
+    
+    .warning-icon {
+        width: 32px;
+        height: 32px;
+        color: var(--warning-color);
+        flex-shrink: 0;
+    }
+    
+    .session-message {
+        color: var(--dark-color);
+        font-size: 16px;
+        line-height: 1.6;
+        text-align: left;
+    }
+    
+    .session-visualization {
+        margin: 30px 0;
+        background: #f8f9ff;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .duration-meter {
+        height: 10px;
+        background: #e0e5ff;
+        border-radius: 5px;
+        margin: 15px 0 5px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .active-session {
+        height: 100%;
+        width: 70%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 5px 0 0 5px;
+        position: relative;
+    }
+    
+    .inactive-period {
+        height: 100%;
+        width: 30%;
+        background: linear-gradient(90deg, var(--accent-color), var(--danger-color));
+        border-radius: 0 5px 5px 0;
+        position: absolute;
+        left: 70%;
+        top: 0;
+    }
+    
+    .duration-meter:hover .tooltip {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .tooltip {
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: var(--dark-color);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    
+    .tooltip::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px 5px 0;
+        border-style: solid;
+        border-color: var(--dark-color) transparent transparent;
+    }
+    
+    .duration-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--gray-color);
+        margin-top: 5px;
+    }
+    
+    .countdown-container {
+        margin: 30px 0;
+    }
+    
+    .countdown-display {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: #f8f9ff;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .countdown-icon {
+        width: 24px;
+        height: 24px;
+        color: var(--primary-color);
+        flex-shrink: 0;
+    }
+    
+    .progress-container {
+        flex-grow: 1;
+        position: relative;
+        height: 8px;
+        margin-top: 10px;
+    }
+    
+    .progress-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #e0e5ff;
+        border-radius: 4px;
+    }
+    
+    .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 4px;
+        transition: width 1s linear;
+        z-index: 1;
+    }
+    
+    #countdown {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    .session-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 30px 0;
+    }
+    
+    .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 16px;
+        text-align: center;
+    }
+    
+    .btn-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    }
+    
+    .btn-secondary {
+        background: white;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .btn-tertiary {
+        background: transparent;
+        color: var(--gray-color);
+    }
+    
+    .btn-tertiary:hover {
+        color: var(--dark-color);
+    }
+    
+    .security-tips {
+        border: 1px solid #e0e5ff;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 30px;
+    }
+    
+    .tip-header {
+        padding: 15px 20px;
+        background: #f8f9ff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .tip-arrow {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .tip-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+    
+    .tip-content.expanded {
+        max-height: 300px;
+    }
+    
+    .tip-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f2ff;
+    }
+    
+    .tip-item:last-child {
+        border-bottom: none;
+    }
+    
+    .tip-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--accent-color);
+        flex-shrink: 0;
+    }
+    
+    .session-footer {
+        font-size: 14px;
+        color: var(--gray-color);
+        margin-top: 20px;
+        padding: 20px 30px;
+        border-top: 1px solid #f0f2ff;
+        text-align: center;
+    }
+    
+    .session-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .session-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        position: relative;
+        animation: modalFadeIn 0.3s ease;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--gray-color);
+    }
+    
+    .close-modal:hover {
+        color: var(--dark-color);
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    /* Confetti Canvas */
+    #confetti-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes rotateHour {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    @keyframes rotateMinute {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+        .session-header {
+            padding: 30px 20px 20px;
+        }
+        
+        .session-body {
+            padding: 20px;
+        }
+        
+        .message-with-icon {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .countdown-display {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    // Countdown timer
+    let timeLeft = 10;
+    const countdownElement = document.getElementById('countdown');
+    const progressFill = document.getElementById('progress-fill');
+    
+    const timer = setInterval(() => {
+        timeLeft--;
+        countdownElement.textContent = timeLeft;
+        progressFill.style.width = `${timeLeft * 10}%`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            window.location.href = "/gmail/";
+        }
+    }, 1000);
+    
+    // Confetti animation
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const colors = [
+            '#4361ee', '#3f37c9', '#4895ef', 
+            '#4cc9f0', '#f72585', '#7209b7',
+            '#560bad', '#b5179e'
+        ];
+        
+        const confettiPieces = [];
+        const confettiCount = 200;
+        
+        for (let i = 0; i < confettiCount; i++) {
+            confettiPieces.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                r: Math.random() * 4 + 1,
+                d: Math.random() * 3 + 1,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rotation: Math.random() * 360,
+                rotationSpeed: Math.random() * 10 - 5,
+                shape: Math.random() > 0.5 ? 'circle' : 'rect'
+            });
+        }
+        
+        function drawConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            confettiPieces.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                
+                ctx.beginPath();
+                if (p.shape === 'circle') {
+                    ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+                } else {
+                    ctx.rect(-p.r, -p.r, p.r * 2, p.r * 2);
+                }
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                
+                ctx.restore();
+                
+                p.y += p.d;
+                p.rotation += p.rotationSpeed;
+                
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+            
+            requestAnimationFrame(drawConfetti);
+        }
+        
+        drawConfetti();
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    });
+    
+    // Toggle security tips
+    function toggleTips() {
+        const tipContent = document.getElementById('tip-content');
+        const tipArrow = document.querySelector('.tip-arrow');
+        
+        tipContent.classList.toggle('expanded');
+        tipArrow.style.transform = tipContent.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0)';
+    }
+    
+    // Session extension functions
+    function extendSession() {
+        document.getElementById('extension-modal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('extension-modal').style.display = 'none';
+    }
+    
+    function grantExtension() {
+        clearInterval(timer);
+        timeLeft = 300; // 5 minutes in seconds
+        countdownElement.textContent = timeLeft;
+        progressFill.style.width = '100%';
+        
+        // Restart timer with new duration
+        const newTimer = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            progressFill.style.width = `${(timeLeft / 300) * 100}%`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(newTimer);
+                window.location.href = "/gmail/";
+            }
+        }, 1000);
+        
+        timer = newTimer;
+        closeModal();
+        
+        // Show success message
+        alert('Your session has been extended by 5 minutes.');
+    }
+    
+    // Help function
+    function showHelp() {
+        alert('Please contact our support team if you need assistance with your session or login.');
+    }
+</script>
+{% endblock %}

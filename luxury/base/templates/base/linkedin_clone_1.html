@@ -1,0 +1,932 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="linkedin-container">
+    <!-- Header -->
+    <header class="linkedin-header">
+        <div class="header-logo">
+            <svg viewBox="0 0 24 24" width="34" height="34">
+                <path fill="#0A66C2" d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.5-2.35-1.76-2.35-1 0-1.5.67-1.76 1.32-.1.23-.1.56-.1.88V19h-3v-9h2.9v1.3a3 3 0 012.7-1.5c2 0 3.45 1.3 3.45 4.11V19z"/>
+            </svg>
+        </div>
+        <nav class="header-nav">
+            <a href="#" class="nav-link">Discover</a>
+            <a href="#" class="nav-link">People</a>
+            <a href="#" class="nav-link">Learning</a>
+            <a href="#" class="nav-link">Jobs</a>
+        </nav>
+        <div class="header-actions">
+            {% if user.is_authenticated %}
+                <div class="user-dropdown">
+                    <img src="{% static 'images/default-avatar.jpg' %}" alt="Profile" class="user-avatar">
+                    <span class="dropdown-arrow">▼</span>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">View Profile</a>
+                        <a href="#" class="dropdown-item">Settings</a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Sign Out</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="auth-link">Sign in</a>
+                <a href="{% url 'register' %}" class="auth-button">Join now</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="linkedin-main">
+        {% if user.is_authenticated %}
+            <!-- Authenticated User View -->
+            <div class="feed-container">
+                <!-- Create Post -->
+                <div class="post-creator">
+                    <div class="creator-header">
+                        <img src="{% static 'images/default-avatar.jpg' %}" alt="Profile" class="creator-avatar">
+                        <button class="create-post-btn">Start a post</button>
+                    </div>
+                    <div class="creator-options">
+                        <button class="option-btn photo-btn">📷 Photo</button>
+                        <button class="option-btn video-btn">🎥 Video</button>
+                        <button class="option-btn event-btn">📅 Event</button>
+                        <button class="option-btn article-btn">📝 Article</button>
+                    </div>
+                </div>
+
+                <!-- Feed Posts -->
+                <div class="feed-posts">
+                    {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-header">
+                            <img src="{{ post.author.profile.image.url|default:'/static/images/default-avatar.jpg' }}" alt="Profile" class="post-avatar">
+                            <div class="post-author">
+                                <h4>{{ post.author.get_full_name }}</h4>
+                                <p>{{ post.author.profile.title|default:"Professional" }}</p>
+                                <span class="post-time">{{ post.date_posted|timesince }} ago</span>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>{{ post.content }}</p>
+                            {% if post.image %}
+                                <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+                            {% endif %}
+                        </div>
+                        <div class="post-stats">
+                            <span class="likes-count">👍 {{ post.likes.count }} likes</span>
+                            <span class="comments-count">💬 {{ post.comments.count }} comments</span>
+                        </div>
+                        <div class="post-actions">
+                            <button class="post-action like-btn" data-post-id="{{ post.id }}">
+                                👍 Like
+                            </button>
+                            <button class="post-action comment-btn">
+                                💬 Comment
+                            </button>
+                            <button class="post-action share-btn">
+                                🔄 Share
+                            </button>
+                            <button class="post-action send-btn">
+                                ✉️ Send
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-feed">
+                        <p>Your feed is empty. Connect with more people to see posts.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-banner"></div>
+                    <div class="profile-info">
+                        <img src="{{ user.profile.image.url|default:'/static/images/default-avatar.jpg' }}" alt="Profile" class="profile-avatar">
+                        <h3>{{ user.get_full_name }}</h3>
+                        <p>{{ user.profile.title|default:"Add your headline" }}</p>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user.profile.connections.count }}</span>
+                            <span class="stat-label">connections</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ user.profile.views }}</span>
+                            <span class="stat-label">profile views</span>
+                        </div>
+                    </div>
+                    <div class="profile-premium">
+                        <p>Grow your network with Premium</p>
+                    </div>
+                </div>
+
+                <!-- Network Updates -->
+                <div class="network-card">
+                    <div class="card-header">
+                        <h4>Network Updates</h4>
+                        <a href="#" class="see-all">See all</a>
+                    </div>
+                    <ul class="network-list">
+                        {% for connection in connections %}
+                        <li class="network-item">
+                            <img src="{{ connection.profile.image.url|default:'/static/images/default-avatar.jpg' }}" alt="Profile" class="network-avatar">
+                            <div class="network-details">
+                                <p><strong>{{ connection.get_full_name }}</strong> {{ connection.profile.headline|truncatechars:30 }}</p>
+                                <span class="network-time">{{ connection.date_joined|timesince }} ago</span>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="empty-network">
+                            <p>No recent network activity</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+        {% else %}
+            <!-- Guest View -->
+            <div class="guest-hero">
+                <div class="hero-content">
+                    <h1>Welcome to your professional community</h1>
+                    <form class="auth-form" method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Email or Phone" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" placeholder="Password" required>
+                        </div>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                        <button type="submit" class="signin-btn">Sign in</button>
+                    </form>
+                    <div class="google-auth">
+                        <span>or</span>
+                        <button class="google-btn">
+                            <img src="{% static 'images/google-icon.png' %}" alt="Google">
+                            Sign in with Google
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="{% static 'images/linkedin-hero.jpg' %}" alt="LinkedIn Community">
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="linkedin-footer">
+        <div class="footer-logo">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <path fill="#666" d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.5-2.35-1.76-2.35-1 0-1.5.67-1.76 1.32-.1.23-.1.56-.1.88V19h-3v-9h2.9v1.3a3 3 0 012.7-1.5c2 0 3.45 1.3 3.45 4.11V19z"/>
+            </svg>
+            <span>LinkedIn</span>
+        </div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">About</a>
+            <a href="#" class="footer-link">Accessibility</a>
+            <a href="#" class="footer-link">User Agreement</a>
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Cookie Policy</a>
+            <a href="#" class="footer-link">Copyright Policy</a>
+            <a href="#" class="footer-link">Brand Policy</a>
+            <a href="#" class="footer-link">Guest Controls</a>
+            <a href="#" class="footer-link">Community Guidelines</a>
+        </div>
+        <div class="footer-copyright">
+            <p>© {% now "Y" %} LinkedIn Corporation. All rights reserved.</p>
+        </div>
+    </footer>
+</div>
+
+<style>
+    :root {
+        --linkedin-blue: #0A66C2;
+        --linkedin-dark-blue: #004182;
+        --linkedin-light-blue: #EBF3FE;
+        --linkedin-gray: #EFF3F8;
+        --linkedin-dark-gray: #666666;
+        --linkedin-text: #000000E6;
+        --linkedin-light-text: #00000099;
+        --linkedin-border: #D6D6D6;
+        --white: #FFFFFF;
+        --black: #000000;
+        --error-red: #D92525;
+        --success-green: #28A745;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --transition: all 0.2s ease;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        color: var(--linkedin-text);
+        line-height: 1.5;
+        background-color: var(--linkedin-gray);
+    }
+
+    .linkedin-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header Styles */
+    .linkedin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 2rem;
+        background-color: var(--white);
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-logo svg {
+        margin-right: 0.5rem;
+    }
+
+    .header-nav {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .nav-link {
+        color: var(--linkedin-dark-gray);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.875rem;
+        padding: 0.5rem 0;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        color: var(--linkedin-blue);
+    }
+
+    .nav-link:hover::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: var(--linkedin-blue);
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .auth-link {
+        color: var(--linkedin-blue);
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 24px;
+    }
+
+    .auth-link:hover {
+        background-color: var(--linkedin-light-blue);
+        text-decoration: underline;
+    }
+
+    .auth-button {
+        color: var(--linkedin-blue);
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 24px;
+        border: 1px solid var(--linkedin-blue);
+    }
+
+    .auth-button:hover {
+        background-color: rgba(10, 102, 194, 0.1);
+        text-decoration: underline;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-dropdown {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        padding: 0.5rem 0;
+        min-width: 200px;
+        display: none;
+        z-index: 10;
+    }
+
+    .user-dropdown:hover .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: var(--linkedin-text);
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .dropdown-item:hover {
+        background-color: var(--linkedin-gray);
+    }
+
+    /* Main Content Styles */
+    .linkedin-main {
+        flex: 1;
+        display: flex;
+        max-width: 1128px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    /* Authenticated View */
+    .feed-container {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .post-creator {
+        background-color: var(--white);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+    }
+
+    .creator-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .creator-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .create-post-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border: 1px solid var(--linkedin-border);
+        border-radius: 24px;
+        background-color: var(--white);
+        color: var(--linkedin-light-text);
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+
+    .create-post-btn:hover {
+        background-color: var(--linkedin-gray);
+    }
+
+    .creator-options {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .option-btn {
+        padding: 0.5rem 0.75rem;
+        background: none;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--linkedin-light-text);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .option-btn:hover {
+        background-color: var(--linkedin-gray);
+    }
+
+    .feed-posts {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .post-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+    }
+
+    .post-header {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .post-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .post-author h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+    }
+
+    .post-author p {
+        font-size: 0.8125rem;
+        color: var(--linkedin-light-text);
+    }
+
+    .post-time {
+        font-size: 0.75rem;
+        color: var(--linkedin-light-text);
+    }
+
+    .post-content {
+        margin-bottom: 0.75rem;
+    }
+
+    .post-content p {
+        margin-bottom: 0.5rem;
+    }
+
+    .post-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+    }
+
+    .post-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: var(--linkedin-light-text);
+        padding: 0.5rem 0;
+        border-top: 1px solid var(--linkedin-border);
+        border-bottom: 1px solid var(--linkedin-border);
+        margin-bottom: 0.5rem;
+    }
+
+    .post-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .post-action {
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--linkedin-light-text);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        border-radius: 4px;
+    }
+
+    .post-action:hover {
+        background-color: var(--linkedin-gray);
+    }
+
+    .empty-feed {
+        background-color: var(--white);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        flex: 1;
+        max-width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .profile-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        position: relative;
+    }
+
+    .profile-banner {
+        height: 56px;
+        background-color: var(--linkedin-blue);
+    }
+
+    .profile-info {
+        text-align: center;
+        padding: 0 1rem 1rem;
+        margin-top: -24px;
+    }
+
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 2px solid var(--white);
+        object-fit: cover;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-info h3 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-info p {
+        font-size: 0.8125rem;
+        color: var(--linkedin-light-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-stats {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--linkedin-border);
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-number {
+        font-weight: 600;
+        color: var(--linkedin-blue);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--linkedin-light-text);
+    }
+
+    .profile-premium {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--linkedin-border);
+        font-size: 0.8125rem;
+    }
+
+    .network-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--linkedin-border);
+    }
+
+    .card-header h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+    }
+
+    .see-all {
+        font-size: 0.8125rem;
+        color: var(--linkedin-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .see-all:hover {
+        text-decoration: underline;
+    }
+
+    .network-list {
+        list-style: none;
+        padding: 0.5rem 0;
+    }
+
+    .network-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .network-item:hover {
+        background-color: var(--linkedin-gray);
+    }
+
+    .network-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .network-details {
+        flex: 1;
+    }
+
+    .network-details p {
+        font-size: 0.8125rem;
+    }
+
+    .network-time {
+        font-size: 0.75rem;
+        color: var(--linkedin-light-text);
+    }
+
+    .empty-network {
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.8125rem;
+        color: var(--linkedin-light-text);
+    }
+
+    /* Guest View */
+    .guest-hero {
+        display: flex;
+        width: 100%;
+        min-height: 600px;
+    }
+
+    .hero-content {
+        flex: 1;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        line-height: 1.2;
+    }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 350px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group input {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--linkedin-border);
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--linkedin-blue);
+        box-shadow: 0 0 0 1px var(--linkedin-blue);
+    }
+
+    .forgot-password {
+        color: var(--linkedin-blue);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .signin-btn {
+        padding: 0.75rem;
+        background-color: var(--linkedin-blue);
+        color: var(--white);
+        border: none;
+        border-radius: 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .signin-btn:hover {
+        background-color: var(--linkedin-dark-blue);
+    }
+
+    .google-auth {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .google-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: none;
+        border: 1px solid var(--linkedin-dark-gray);
+        border-radius: 24px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .google-btn:hover {
+        background-color: var(--linkedin-gray);
+    }
+
+    .hero-image {
+        flex: 1;
+        background-color: var(--linkedin-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-image img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Footer Styles */
+    .linkedin-footer {
+        background-color: var(--white);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .footer-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .footer-logo span {
+        font-weight: 600;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .footer-link {
+        color: var(--linkedin-dark-gray);
+        text-decoration: none;
+        font-size: 0.75rem;
+    }
+
+    .footer-link:hover {
+        text-decoration: underline;
+        color: var(--linkedin-blue);
+    }
+
+    .footer-copyright {
+        font-size: 0.75rem;
+        color: var(--linkedin-dark-gray);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .linkedin-header {
+            padding: 0.5rem 1rem;
+        }
+
+        .header-nav {
+            display: none;
+        }
+
+        .linkedin-main {
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .sidebar {
+            max-width: 100%;
+            order: -1;
+        }
+
+        .guest-hero {
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        .hero-content {
+            order: 2;
+            padding: 1.5rem;
+        }
+
+        .hero-image {
+            order: 1;
+            padding: 1rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Like button functionality
+        document.querySelectorAll('.like-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                const likesCount = this.closest('.post-card').querySelector('.likes-count');
+                
+                // Toggle like state
+                if (this.classList.contains('liked')) {
+                    this.classList.remove('liked');
+                    this.innerHTML = '👍 Like';
+                    // In a real app, you would send an AJAX request to remove the like
+                    const currentCount = parseInt(likesCount.textContent.match(/\d+/)[0]);
+                    likesCount.textContent = `👍 ${currentCount - 1} likes`;
+                } else {
+                    this.classList.add('liked');
+                    this.innerHTML = '👍 Liked';
+                    // In a real app, you would send an AJAX request to add the like
+                    const currentCount = parseInt(likesCount.textContent.match(/\d+/)[0]);
+                    likesCount.textContent = `👍 ${currentCount + 1} likes`;
+                }
+            });
+        });
+
+        // Create post modal simulation
+        document.querySelector('.create-post-btn')?.addEventListener('click', function() {
+            alert('In a real implementation, this would open a post creation modal');
+        });
+
+        // Show/hide dropdown menu
+        document.querySelector('.user-dropdown')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = this.querySelector('.dropdown-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close dropdown when clicking elsewhere
+        document.addEventListener('click', function() {
+            const menus = document.querySelectorAll('.dropdown-menu');
+            menus.forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

