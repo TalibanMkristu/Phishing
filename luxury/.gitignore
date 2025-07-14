@@ -1,1 +1,4 @@
 *.log
+*.sqlite3
+*.env
+*.envrc
