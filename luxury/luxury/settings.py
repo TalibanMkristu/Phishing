@@ -150,8 +150,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # stripe configurations 
 # stripe settings 
-STRIPE_SECRET_KEY=config('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY=config('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY=config('STRIPE_SECRET_KEY', '')
+STRIPE_PUBLISHABLE_KEY=config('STRIPE_PUBLISHABLE_KEY', '')
 
 
 #paypal integration
