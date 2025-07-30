@@ -1,0 +1,315 @@
+<!--Removed extension-->
+{% block extra_style %}
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4cc9f0;
+        --dark-color: #1a1a2e;
+        --light-color: #f8f9fa;
+        --success-color: #4ad66d;
+    }
+    
+    body {
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        color: var(--dark-color);
+        line-height: 1.6;
+    }
+    
+    .blog-posts {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    
+    .blog-posts::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+    
+    .blog-posts::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(76,201,240,0.1) 0%, rgba(76,201,240,0) 70%);
+        z-index: 0;
+    }
+    
+    h4 {
+        margin: 1.5rem 0 0.5rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        position: relative;
+        display: inline-block;
+    }
+    
+    h4:first-child {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-top: 0;
+    }
+    
+    h4:nth-child(2) {
+        font-size: 2.5rem;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin: 1rem 0;
+        line-height: 1.2;
+    }
+    
+    h4:nth-child(2)::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+        border-radius: 2px;
+    }
+    
+    h4:nth-child(3), h4:nth-child(4) {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        padding: 0.5rem 1rem;
+        background-color: rgba(67, 97, 238, 0.1);
+        border-radius: 50px;
+        display: inline-block;
+    }
+    
+    p:first-of-type {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+    
+    p:first-of-type::before {
+        content: '📅';
+        position: absolute;
+        left: 0;
+    }
+    
+    p:last-of-type {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin: 2rem 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .category-chip {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+        color: white;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    
+    /* Confetti canvas */
+    .confetti-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1000;
+    }
+    
+    /* Floating decorative elements */
+    .floating-element {
+        position: absolute;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    
+    .floating-element:nth-child(1) {
+        top: 10%;
+        left: 5%;
+        width: 50px;
+        height: 50px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .floating-element:nth-child(2) {
+        bottom: 15%;
+        right: 10%;
+        width: 80px;
+        height: 80px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite 2s;
+    }
+    
+    .floating-element:nth-child(3) {
+        top: 30%;
+        right: 15%;
+        width: 30px;
+        height: 30px;
+        background: var(--secondary-color);
+        border-radius: 50%;
+        animation: float 5s ease-in-out infinite 1s;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .blog-posts {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        
+        h4:nth-child(2) {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Floating decorative elements -->
+<div class="floating-element"></div>
+<div class="floating-element"></div>
+<div class="floating-element"></div>
+
+<!-- Confetti canvas -->
+<canvas class="confetti-canvas"></canvas>
+
+<div class="blog-posts">
+    <h4>@{{request.user}}'s Blog</h4>
+    <h4>{{blog.title}}</h4>
+    
+    {% if blog.image.url %}
+    <div style="margin: 2rem 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+        <img src="{{blog.image.url}}" alt="{{blog.title}}" style="width: 100%; height: auto; display: block; transition: transform 0.5s ease;">
+    </div>
+    {% endif %}
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;">
+        <span class="category-chip">{{blog.category}}</span>
+    </div>
+    
+    <p>{{blog.created_at|date:"F j, Y"}}</p>
+    <p>{{blog.body}}</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+    // Initialize animations when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Trigger confetti effect
+        setTimeout(() => {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4361ee', '#3f37c9', '#4cc9f0', '#4ad66d']
+            });
+        }, 1000);
+        
+        // Add hover effect to blog image
+        const blogImage = document.querySelector('.blog-posts img');
+        if (blogImage) {
+            blogImage.addEventListener('mouseenter', () => {
+                blogImage.style.transform = 'scale(1.02)';
+            });
+            blogImage.addEventListener('mouseleave', () => {
+                blogImage.style.transform = 'scale(1)';
+            });
+        }
+        
+        // Add subtle pulse animation to category chip
+        const categoryChips = document.querySelectorAll('.category-chip');
+        categoryChips.forEach(chip => {
+            chip.addEventListener('mouseenter', () => {
+                chip.style.animation = 'pulse 0.5s ease';
+            });
+            chip.addEventListener('animationend', () => {
+                chip.style.animation = '';
+            });
+        });
+    });
+    
+    // Advanced confetti effect on click
+    document.addEventListener('click', function(e) {
+        const colors = ['#4361ee', '#3f37c9', '#4cc9f0', '#4ad66d'];
+        
+        confetti({
+            particleCount: 30,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: colors
+        });
+        
+        confetti({
+            particleCount: 30,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: colors
+        });
+    });
+</script>
+{% endblock %}

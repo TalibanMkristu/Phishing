@@ -1,0 +1,451 @@
+{% extends 'kcof/home.html' %}
+
+{% block extra_css %}
+
+<!-- Modern CSS with Variables and Animations -->
+<style>
+    :root {
+        --events-primary: #4361ee;
+        --events-secondary: #3f37c9;
+        --events-light: #f8f9fa;
+        --events-dark: #212529;
+        --events-success: #4cc9f0;
+        --events-warning: #f8961e;
+        --events-danger: #f72585;
+        --events-border: 1px solid rgba(0,0,0,0.1);
+        --events-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        --events-radius: 12px;
+        --events-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .events-ecosystem {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+        color: var(--events-dark);
+    }
+
+    .events-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        border: var(--events-border);
+        border-radius: var(--events-radius);
+        box-shadow: var(--events-shadow);
+        overflow: hidden;
+        background: white;
+        transition: var(--events-transition);
+    }
+
+    .events-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 2rem;
+        background-color: var(--events-primary);
+        color: white;
+    }
+
+    .events-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .events-badge {
+        background: white;
+        color: var(--events-primary);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .events-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .events-refresh {
+        background: transparent;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1.25rem;
+        transition: transform 0.3s ease;
+    }
+
+    .events-refresh:hover {
+        transform: rotate(180deg);
+    }
+
+    .events-view-toggle {
+        display: flex;
+        background: rgba(255,255,255,0.2);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .view-option {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background 0.2s ease;
+    }
+
+    .view-option.active {
+        background: rgba(255,255,255,0.3);
+        font-weight: 600;
+    }
+
+    .events-content {
+        padding: 2rem;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Empty State Styles */
+    .events-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 2rem;
+        padding: 2rem 0;
+        margin: auto;
+    }
+
+    .empty-state-content {
+        max-width: 500px;
+    }
+
+    .empty-state-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--events-dark);
+    }
+
+    .empty-state-text {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--events-transition);
+    }
+
+    .btn-primary {
+        background: var(--events-primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--events-secondary);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--events-primary);
+        border: 1px solid var(--events-primary);
+    }
+
+    /* Loading State Styles */
+    .events-loading-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(67, 97, 238, 0.2);
+        border-radius: 50%;
+        border-top-color: var(--events-primary);
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Error State Styles */
+    .events-error-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 1rem;
+        padding: 2rem;
+    }
+
+    .error-icon {
+        font-size: 3rem;
+        color: var(--events-danger);
+    }
+
+    .error-title {
+        color: var(--events-danger);
+    }
+
+    .btn-retry {
+        background: var(--events-danger);
+        color: white;
+        margin-top: 1rem;
+    }
+
+    /* Footer Styles */
+    .events-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        border-top: var(--events-border);
+        background: var(--events-light);
+        font-size: 0.875rem;
+    }
+
+    .btn-export {
+        background: transparent;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .events-container {
+            margin: 1rem;
+            border-radius: 0;
+        }
+
+        .events-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .empty-state-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+        .events-container {
+            background: #1e1e1e;
+            border-color: #333;
+        }
+
+        .events-title, .empty-state-title {
+            color: white;
+        }
+
+        .empty-state-text {
+            color: #aaa;
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            border-color: #555;
+        }
+
+        .events-footer {
+            background: #252525;
+            border-color: #333;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="events-ecosystem">
+    <!-- State Management Layer (hidden) -->
+    <div class="events-data" 
+         data-empty="true" 
+         data-upcoming="false" 
+         data-api-endpoint="/api/events"
+         data-theme="light">
+    </div>
+
+    <!-- Main Container -->
+    <div class="events-container">
+        <!-- Header with Interactive Controls -->
+        <div class="events-header">
+            <h2 class="events-title">
+                <i class="events-icon icon-calendar"></i>
+                Upcoming Events
+                <span class="events-badge" aria-live="polite">0</span>
+            </h2>
+            
+            <div class="events-controls">
+                <button class="events-refresh" aria-label="Refresh events">
+                    <i class="icon-refresh"></i>
+                </button>
+                <div class="events-view-toggle">
+                    <button class="view-option active" data-view="card">Card</button>
+                    <button class="view-option" data-view="list">List</button>
+                    <button class="view-option" data-view="calendar">Calendar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div class="events-content">
+            <!-- Empty State (Default) -->
+            <div class="events-empty-state">
+                <div class="empty-state-animation">
+                    <lottie-player 
+                        src="https://assets8.lottiefiles.com/packages/lf20_khtt8ejx.json" 
+                        background="transparent" 
+                        speed="1" 
+                        style="width: 200px; height: 200px;" 
+                        loop 
+                        autoplay>
+                    </lottie-player>
+                </div>
+                
+                <div class="empty-state-content">
+                    <h3 class="empty-state-title">No Events Scheduled</h3>
+                    <p class="empty-state-text">We don't have any upcoming events at the moment. Please check back later or subscribe to our newsletter for updates.</p>
+                    
+                    <div class="empty-state-actions">
+                        <button class="btn btn-primary" id="subscribeBtn">
+                            <i class="icon-bell"></i> Notify Me
+                        </button>
+                        <button class="btn btn-secondary" id="suggestEventBtn">
+                            <i class="icon-edit"></i> Suggest an Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State (Hidden by Default) -->
+            <div class="events-loading-state" style="display: none;">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading events...</p>
+                </div>
+            </div>
+
+            <!-- Error State (Hidden by Default) -->
+            <div class="events-error-state" style="display: none;">
+                <div class="error-icon">
+                    <i class="icon-warning"></i>
+                </div>
+                <h3 class="error-title">Unable to Load Events</h3>
+                <p class="error-text">We're having trouble loading the events. Please try again later.</p>
+                <button class="btn btn-retry">Retry</button>
+            </div>
+
+            <!-- Actual Events Container (Hidden by Default) -->
+            <div class="events-grid" style="display: none;">
+                <!-- Would be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Footer with Metadata -->
+        <div class="events-footer">
+            <p class="last-updated">Last checked: <span id="lastUpdated">Just now</span></p>
+            <div class="events-export">
+                <button class="btn-export">
+                    <i class="icon-download"></i> Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JavaScript for Enhanced Interactivity -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const refreshBtn = document.querySelector('.events-refresh');
+        const viewOptions = document.querySelectorAll('.view-option');
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        const suggestEventBtn = document.getElementById('suggestEventBtn');
+        
+        // Event Listeners
+        refreshBtn.addEventListener('click', function() {
+            // Simulate refresh
+            console.log('Refreshing events...');
+            // In a real implementation, this would fetch from API
+        });
+        
+        viewOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                viewOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                console.log('Switched to view:', this.dataset.view);
+                // Would change the display mode in real implementation
+            });
+        });
+        
+        subscribeBtn.addEventListener('click', function() {
+            console.log('Subscribe clicked');
+            // Would open a subscription modal in real implementation
+        });
+        
+        suggestEventBtn.addEventListener('click', function() {
+            console.log('Suggest event clicked');
+            // Would open an event suggestion form in real implementation
+        });
+        
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 
+                now.toLocaleString();
+        }
+        
+        setInterval(updateLastUpdated, 60000); // Update every minute
+    });
+</script>
+
+<!-- Lottie Animation for Empty State -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+{% endblock %}

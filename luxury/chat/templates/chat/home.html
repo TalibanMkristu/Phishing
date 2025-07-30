@@ -1,0 +1,1197 @@
+{% extends "chat/base.html" %}
+{% load static %}
+
+{% block title %}{{ room.name }} | KCOF Chat{% endblock %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Base color variables */
+        --chat-primary: #5865F2;
+        --chat-primary-hover: #4752C4;
+        --chat-primary-active: #3C45A5;
+        --chat-secondary: #4E5058;
+        --chat-secondary-hover: #6D6F78;
+        --chat-secondary-active: #5C5E66;
+        --chat-success: #3BA55C;
+        --chat-danger: #ED4245;
+        --chat-warning: #FAA61A;
+        
+        /* Background variables */
+        --chat-bg-primary: #36393F;
+        --chat-bg-secondary: #2F3136;
+        --chat-bg-tertiary: #202225;
+        --chat-bg-accent: #40444B;
+        --chat-bg-floating: #18191C;
+        
+        /* Text variables */
+        --chat-text-primary: #FFFFFF;
+        --chat-text-secondary: #B9BBBE;
+        --chat-text-muted: #72767D;
+        --chat-text-link: #00AFF4;
+        
+        /* Spacing variables */
+        --chat-spacing-xs: 4px;
+        --chat-spacing-sm: 8px;
+        --chat-spacing-md: 16px;
+        --chat-spacing-lg: 24px;
+        --chat-spacing-xl: 32px;
+        
+        /* Border radius */
+        --chat-radius-sm: 4px;
+        --chat-radius-md: 8px;
+        --chat-radius-lg: 12px;
+        --chat-radius-full: 9999px;
+        
+        /* Shadows */
+        --chat-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --chat-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --chat-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        --chat-shadow-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        
+        /* Transitions */
+        --chat-transition-fast: 100ms ease;
+        --chat-transition-normal: 200ms ease;
+        --chat-transition-slow: 300ms ease;
+        --chat-transition-bounce: 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        
+        /* Z-index */
+        --chat-z-base: 1;
+        --chat-z-floating: 10;
+        --chat-z-popover: 20;
+        --chat-z-tooltip: 30;
+        --chat-z-modal: 40;
+        --chat-z-toast: 50;
+        
+        /* Confetti colors */
+        --chat-confetti-1: #FF5252;
+        --chat-confetti-2: #FFD740;
+        --chat-confetti-3: #64FFDA;
+        --chat-confetti-4: #448AFF;
+        --chat-confetti-5: #B388FF;
+    }
+
+    /* Confetti effect */
+    @keyframes chat-confetti-fall {
+        0% {
+            transform: translateY(-100vh) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .chat-confetti {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: var(--chat-confetti-1);
+        opacity: 0;
+        animation: chat-confetti-fall 1s ease-out forwards;
+        pointer-events: none;
+        z-index: var(--chat-z-tooltip);
+    }
+
+    /* Chatroom specific styles */
+    .chatroom-container {
+        display: grid;
+        grid-template-columns: var(--sidebar-width) 1fr minmax(240px, 300px);
+        height: calc(100vh - var(--header-height));
+        overflow: hidden;
+        background-color: var(--chat-bg-primary);
+        color: var(--chat-text-primary);
+        font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    
+    /* Sidebar with 3D effect */
+    .sidebar {
+        background-color: var(--chat-bg-secondary);
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(0, 0, 0, 0.2);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        overflow: hidden;
+        transition: transform var(--chat-transition-normal);
+    }
+    
+    .sidebar-header {
+        padding: var(--chat-spacing-md);
+        border-bottom: 1px solid var(--chat-bg-tertiary);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--chat-shadow-sm);
+        z-index: var(--chat-z-base);
+    }
+    
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--chat-spacing-sm) 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--chat-secondary) transparent;
+    }
+    
+    .sidebar-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .sidebar-content::-webkit-scrollbar-thumb {
+        background-color: var(--chat-secondary);
+        border-radius: var(--chat-radius-full);
+    }
+    
+    .sidebar-footer {
+        padding: var(--chat-spacing-md);
+        border-top: 1px solid var(--chat-bg-tertiary);
+        background-color: var(--chat-bg-tertiary);
+        transition: background-color var(--chat-transition-fast);
+    }
+    
+    /* Channel list with hover effects */
+    .channel-category {
+        margin-bottom: var(--chat-spacing-md);
+    }
+    
+    .channel-category-header {
+        padding: var(--chat-spacing-sm) var(--chat-spacing-md);
+        color: var(--chat-text-muted);
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        user-select: none;
+    }
+    
+    .channel-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .channel-item {
+        position: relative;
+        padding: var(--chat-spacing-xs) var(--chat-spacing-md) var(--chat-spacing-xs) calc(var(--chat-spacing-md) + var(--chat-spacing-lg));
+        margin: 2px var(--chat-spacing-md);
+        border-radius: var(--chat-radius-sm);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: all var(--chat-transition-fast);
+        overflow: hidden;
+    }
+    
+    .channel-item::before {
+        content: '#';
+        position: absolute;
+        left: var(--chat-spacing-md);
+        color: var(--chat-text-muted);
+        transition: color var(--chat-transition-fast);
+    }
+    
+    .channel-item:hover {
+        background-color: var(--chat-bg-accent);
+        color: var(--chat-text-primary);
+    }
+    
+    .channel-item:hover::before {
+        color: var(--chat-text-primary);
+    }
+    
+    .channel-item.active {
+        background-color: var(--chat-bg-accent);
+        color: var(--chat-text-primary);
+    }
+    
+    .channel-item.active::before {
+        color: var(--chat-text-primary);
+    }
+    
+    .channel-item.unread::after {
+        content: '';
+        position: absolute;
+        left: var(--chat-spacing-sm);
+        width: 8px;
+        height: 8px;
+        background-color: var(--chat-text-primary);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(0.95); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(0.95); }
+    }
+    
+    /* Main chat area with message bubbles */
+    .chat-area {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--chat-bg-primary);
+        position: relative;
+    }
+    
+    .chat-header {
+        padding: var(--chat-spacing-md);
+        border-bottom: 1px solid var(--chat-bg-tertiary);
+        display: flex;
+        align-items: center;
+        gap: var(--chat-spacing-sm);
+        z-index: var(--chat-z-base);
+        box-shadow: var(--chat-shadow-sm);
+    }
+    
+    .chat-header h2 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .chat-header .topic {
+        color: var(--chat-text-muted);
+        font-size: 14px;
+        flex: 1;
+    }
+    
+    /* Message container with custom scrollbar */
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--chat-spacing-md);
+        display: flex;
+        flex-direction: column;
+        gap: var(--chat-spacing-md);
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: var(--chat-secondary) transparent;
+    }
+    
+    .chat-messages::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+        background-color: var(--chat-secondary);
+        border-radius: var(--chat-radius-full);
+    }
+    
+    /* Message component with hover animation */
+    .message {
+        display: flex;
+        gap: var(--chat-spacing-md);
+        padding: var(--chat-spacing-xs) var(--chat-spacing-md);
+        position: relative;
+        border-radius: var(--chat-radius-sm);
+        transition: background-color var(--chat-transition-fast);
+    }
+    
+    .message:hover {
+        background-color: rgba(79, 84, 92, 0.16);
+    }
+    
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        transition: transform var(--chat-transition-bounce);
+    }
+    
+    .message:hover .message-avatar {
+        transform: scale(1.05);
+    }
+    
+    .message-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: var(--chat-spacing-sm);
+        margin-bottom: var(--chat-spacing-xs);
+    }
+    
+    .message-author {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--chat-text-primary);
+    }
+    
+    .message-timestamp {
+        color: var(--chat-text-muted);
+        font-size: 12px;
+    }
+    
+    .message-text {
+        font-size: 15px;
+        line-height: 1.4;
+        word-break: break-word;
+        color: var(--chat-text-secondary);
+    }
+    
+    /* Message actions that fade in */
+    .message-actions {
+        position: absolute;
+        right: var(--chat-spacing-md);
+        top: var(--chat-spacing-xs);
+        display: none;
+        background-color: var(--chat-bg-secondary);
+        border-radius: var(--chat-radius-sm);
+        box-shadow: var(--chat-shadow-md);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all var(--chat-transition-normal);
+    }
+    
+    .message:hover .message-actions {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .message-action {
+        background: none;
+        border: none;
+        color: var(--chat-text-muted);
+        padding: var(--chat-spacing-xs) var(--chat-spacing-sm);
+        cursor: pointer;
+        font-size: 14px;
+        transition: all var(--chat-transition-fast);
+    }
+    
+    .message-action:hover {
+        color: var(--chat-text-primary);
+        background-color: var(--chat-bg-accent);
+    }
+    
+    /* Message input with growing animation */
+    .message-input-container {
+        padding: var(--chat-spacing-md);
+        background-color: var(--chat-bg-secondary);
+        border-top: 1px solid var(--chat-bg-tertiary);
+        transition: all var(--chat-transition-slow);
+    }
+    
+    .message-input {
+        background-color: var(--chat-bg-accent);
+        border-radius: var(--chat-radius-md);
+        padding: var(--chat-spacing-sm) var(--chat-spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--chat-spacing-sm);
+        transition: all var(--chat-transition-normal);
+    }
+    
+    .message-input:focus-within {
+        box-shadow: 0 0 0 2px var(--chat-primary);
+    }
+    
+    .message-input textarea {
+        flex: 1;
+        background: none;
+        border: none;
+        resize: none;
+        max-height: 200px;
+        min-height: 20px;
+        line-height: 1.4;
+        font-size: 15px;
+        padding: 0;
+        color: var(--chat-text-primary);
+        outline: none;
+    }
+    
+    .message-input textarea::placeholder {
+        color: var(--chat-text-muted);
+    }
+    
+    .message-input-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--chat-spacing-xs);
+    }
+    
+    /* Button with confetti effect on hover */
+    .message-input-button {
+        position: relative;
+        background: none;
+        border: none;
+        color: var(--chat-text-muted);
+        cursor: pointer;
+        padding: var(--chat-spacing-xs);
+        border-radius: var(--chat-radius-sm);
+        transition: all var(--chat-transition-fast);
+        overflow: hidden;
+    }
+    
+    .message-input-button.confetti-trigger:hover {
+        color: var(--chat-text-primary);
+        background-color: var(--chat-bg-accent);
+    }
+    
+    /* Member list with status indicators */
+    .member-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .member-item {
+        padding: var(--chat-spacing-sm) var(--chat-spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--chat-spacing-sm);
+        border-radius: var(--chat-radius-sm);
+        transition: background-color var(--chat-transition-fast);
+        position: relative;
+    }
+    
+    .member-item:hover {
+        background-color: var(--chat-bg-accent);
+    }
+    
+    .member-name {
+        font-weight: 500;
+    }
+    
+    .member-status {
+        font-size: 12px;
+        color: var(--chat-text-muted);
+    }
+    
+    .member-role {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--chat-primary);
+        background-color: rgba(88, 101, 242, 0.1);
+        padding: 2px 8px;
+        border-radius: var(--chat-radius-sm);
+    }
+    
+    /* Status indicators */
+    .member-item::after {
+        content: '';
+        position: absolute;
+        left: 28px;
+        bottom: 10px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--chat-success);
+        border: 2px solid var(--chat-bg-secondary);
+    }
+    
+    .member-item.offline::after {
+        background-color: var(--chat-text-muted);
+    }
+    
+    .member-item.idle::after {
+        background-color: var(--chat-warning);
+    }
+    
+    .member-item.dnd::after {
+        background-color: var(--chat-danger);
+    }
+    
+    /* Responsive design with smooth transitions */
+    @media (max-width: 768px) {
+        .chatroom-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            z-index: var(--chat-z-modal);
+            transform: translateX(-100%);
+            transition: transform var(--chat-transition-slow);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .member-sidebar {
+            right: 0;
+            left: auto;
+            transform: translateX(100%);
+        }
+        
+        .member-sidebar.active {
+            transform: translateX(0);
+        }
+    }
+
+    /* Tooltips */
+    [data-tooltip] {
+        position: relative;
+    }
+
+    [data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--chat-bg-floating);
+        color: var(--chat-text-primary);
+        padding: var(--chat-spacing-xs) var(--chat-spacing-sm);
+        border-radius: var(--chat-radius-sm);
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--chat-transition-fast);
+        z-index: var(--chat-z-tooltip);
+        pointer-events: none;
+        box-shadow: var(--chat-shadow-md);
+    }
+
+    [data-tooltip]:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(-4px);
+    }
+
+    /* Modal styles */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: var(--chat-z-modal);
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--chat-transition-slow);
+    }
+    
+    .overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal {
+        background-color: var(--chat-bg-secondary);
+        border-radius: var(--chat-radius-md);
+        width: 100%;
+        max-width: 440px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--chat-shadow-lg);
+        transform: scale(0.9);
+        transition: transform var(--chat-transition-slow);
+    }
+    
+    .overlay.active .modal {
+        transform: scale(1);
+    }
+    
+    .modal-header {
+        padding: var(--chat-spacing-md);
+        border-bottom: 1px solid var(--chat-bg-tertiary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .modal-body {
+        padding: var(--chat-spacing-md);
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        padding: var(--chat-spacing-md);
+        border-top: 1px solid var(--chat-bg-tertiary);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--chat-spacing-sm);
+    }
+    
+    .btn {
+        padding: var(--chat-spacing-sm) var(--chat-spacing-md);
+        border-radius: var(--chat-radius-sm);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--chat-transition-fast);
+        border: none;
+    }
+    
+    .btn.secondary {
+        background-color: var(--chat-bg-accent);
+        color: var(--chat-text-primary);
+    }
+    
+    .btn.secondary:hover {
+        background-color: var(--chat-secondary-hover);
+    }
+    
+    .btn.success {
+        background-color: var(--chat-success);
+        color: white;
+    }
+    
+    .btn.success:hover {
+        background-color: #2d8c4a;
+    }
+    
+    /* Form styles */
+    .form-group {
+        margin-bottom: var(--chat-spacing-md);
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: var(--chat-spacing-xs);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--chat-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-helper {
+        font-size: 12px;
+        color: var(--chat-text-muted);
+        margin-top: var(--chat-spacing-xs);
+    }
+    
+    input[type="text"],
+    select {
+        width: 100%;
+        padding: var(--chat-spacing-sm);
+        background-color: var(--chat-bg-tertiary);
+        border: 1px solid rgba(0, 0, 0, 0.3);
+        border-radius: var(--chat-radius-sm);
+        color: var(--chat-text-primary);
+        transition: all var(--chat-transition-fast);
+    }
+    
+    input[type="text"]:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--chat-primary);
+        box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatroom-container">
+    <!-- Server sidebar -->
+    <div class="sidebar" id="server-sidebar">
+        <div class="sidebar-header">
+            <span>{{ room.name }}</span>
+            <button class="close-btn mobile-hidden" id="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="channel-category">
+                <div class="channel-category-header">
+                    <span>TEXT CHANNELS</span>
+                    <button class="message-input-button confetti-trigger" data-tooltip="Create Channel">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="channel-list">
+                    <li class="channel-item active">
+                        <span>general</span>
+                    </li>
+                    <li class="channel-item">
+                        <span>random</span>
+                    </li>
+                    <li class="channel-item unread">
+                        <span>help</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="channel-category">
+                <div class="channel-category-header">
+                    <span>VOICE CHANNELS</span>
+                    <button class="message-input-button confetti-trigger" data-tooltip="Create Channel">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="channel-list">
+                    <li class="channel-item">
+                        <span>General</span>
+                    </li>
+                    <li class="channel-item">
+                        <span>Music</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-panel">
+                <div class="flex items-center gap-2">
+                    <div class="avatar">
+                        {% if request.user.profile.avatar %}
+                            <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}">
+                        {% else %}
+                            {{ request.user.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium">{{ request.user.username }}</span>
+                        <span class="text-xs text-muted">#{{ request.user.id }}</span>
+                    </div>
+                    <div class="ml-auto flex gap-1">
+                        <button class="message-input-button confetti-trigger" data-tooltip="Mute">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="message-input-button confetti-trigger" data-tooltip="Deafen">
+                            <i class="fas fa-headphones"></i>
+                        </button>
+                        <button class="message-input-button confetti-trigger" data-tooltip="User Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main chat area -->
+    <div class="chat-area">
+        <div class="chat-header">
+            <i class="fas fa-hashtag text-muted"></i>
+            <h2>{{ room.name }}</h2>
+            <div class="topic text-muted">{{ room.description|default:"No topic set" }}</div>
+            <div class="ml-auto flex gap-2">
+                <button class="message-input-button confetti-trigger" data-tooltip="Threads">
+                    <i class="fas fa-comment-alt"></i>
+                </button>
+                <button class="message-input-button confetti-trigger" data-tooltip="Notification Settings">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <button class="message-input-button confetti-trigger" data-tooltip="Pinned Messages">
+                    <i class="fas fa-thumbtack"></i>
+                </button>
+                <button class="message-input-button confetti-trigger" data-tooltip="Member List" id="member-list-toggle">
+                    <i class="fas fa-users"></i>
+                </button>
+                <button class="message-input-button desktop-hidden confetti-trigger" data-tooltip="Server Sidebar" id="mobile-sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="message-container">
+            <!-- Welcome message -->
+            <div class="message">
+                <div class="message-avatar">
+                    <img src="{% static 'images/bot-avatar.png' %}" alt="Bot Avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author">Welcome Bot</span>
+                        <span class="message-timestamp">Today at {{ now|time:"H:i" }}</span>
+                    </div>
+                    <div class="message-text">
+                        <p>Welcome to <strong>#{{ room.name }}</strong>!</p>
+                        <p>This is the start of the <strong>#{{ room.name }}</strong> channel.</p>
+                        {% if room.description %}
+                        <p>Channel topic: <em>{{ room.description }}</em></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sample messages -->
+            {% for message in messages %}
+            <div class="message">
+                <div class="message-avatar">
+                    {% if message.user.profile.avatar %}
+                        <img src="{{ message.user.profile.avatar.url }}" alt="{{ message.user.username }}">
+                    {% else %}
+                        <div class="avatar">{{ message.user.username|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author">{{ message.user.username }}</span>
+                        <span class="message-timestamp">{{ message.created|timesince }} ago</span>
+                    </div>
+                    <div class="message-text">
+                        {{ message.content }}
+                    </div>
+                </div>
+                <div class="message-actions">
+                    <button class="message-action confetti-trigger" data-tooltip="Add Reaction">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <button class="message-action confetti-trigger" data-tooltip="Reply">
+                        <i class="fas fa-reply"></i>
+                    </button>
+                    <button class="message-action confetti-trigger" data-tooltip="More">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="message-input-container">
+            <form id="message-form" method="post" action=""><!--send message action TODO-->
+                {% csrf_token %}
+                <div class="message-input">
+                    <button type="button" class="message-input-button confetti-trigger" data-tooltip="Add Attachment">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <textarea id="message-input" name="content" placeholder="Message #{{ room.name }}" rows="1"></textarea>
+                    <div class="message-input-actions">
+                        <button type="button" class="message-input-button confetti-trigger" data-tooltip="GIF">
+                            <i class="fas fa-gift"></i>
+                        </button>
+                        <button type="button" class="message-input-button confetti-trigger" data-tooltip="Emoji">
+                            <i class="far fa-smile"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Member list sidebar -->
+    <div class="sidebar" id="member-sidebar">
+        <div class="sidebar-header">
+            <span>ONLINE — {{ room.participants.count }}</span>
+            <button class="close-btn" id="member-sidebar-close">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <ul class="member-list">
+                {% for participant in room.participants.all %}
+                <li class="member-item">
+                    <div class="avatar avatar-sm">
+                        {% if participant.profile.avatar %}
+                            <img src="{{ participant.profile.avatar.url }}" alt="{{ participant.username }}">
+                        {% else %}
+                            {{ participant.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="member-name">{{ participant.username }}</span>
+                        <span class="member-status">Online</span>
+                    </div>
+                    {% if participant == room.host %}
+                    <span class="member-role">Host</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Mobile menu toggle -->
+    <button class="mobile-menu-toggle mobile-hidden" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<!-- Create channel modal -->
+<div class="overlay" id="create-channel-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Create Channel</h3>
+            <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="create-channel-form">
+                <div class="form-group">
+                    <label class="form-label" for="channel-name">Channel Name</label>
+                    <input type="text" id="channel-name" name="name" placeholder="new-channel" required>
+                    <div class="form-helper">Lowercase letters, numbers, and hyphens only</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="channel-type">Channel Type</label>
+                    <select id="channel-type" name="type" required>
+                        <option value="text">Text Channel</option>
+                        <option value="voice">Voice Channel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="channel-topic">Channel Topic (optional)</label>
+                    <input type="text" id="channel-topic" name="topic" placeholder="What's this channel about?">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn secondary" onclick="closeModal('create-channel-modal')">Cancel</button>
+            <button class="btn success" type="submit" form="create-channel-form">Create Channel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile sidebar toggle
+        const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+        const serverSidebar = document.getElementById('server-sidebar');
+        
+        mobileSidebarToggle.addEventListener('click', function() {
+            serverSidebar.classList.toggle('active');
+        });
+        
+        // Member list toggle
+        const memberListToggle = document.getElementById('member-list-toggle');
+        const memberSidebar = document.getElementById('member-sidebar');
+        const memberSidebarClose = document.getElementById('member-sidebar-close');
+        
+        memberListToggle.addEventListener('click', function() {
+            memberSidebar.classList.add('active');
+        });
+        
+        memberSidebarClose.addEventListener('click', function() {
+            memberSidebar.classList.remove('active');
+        });
+        
+        // Message input auto-resize
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        
+        // Message form submission
+        const messageForm = document.getElementById('message-form');
+        if (messageForm) {
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const message = formData.get('content');
+                
+                if (message.trim() === '') return;
+                
+                // In a real app, you would use WebSockets or fetch API to send the message
+                // For this template, we'll simulate it
+                addMessageToChat({
+                    user: {
+                        username: '{{ request.user.username }}',
+                        profile: {
+                            avatar: '{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% endif %}'
+                        }
+                    },
+                    content: message,
+                    created: new Date().toISOString()
+                });
+                
+                // Clear input
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                messageInput.focus();
+            });
+        }
+        
+        // Confetti effect on hover
+        document.querySelectorAll('.confetti-trigger').forEach(button => {
+            button.addEventListener('mouseenter', function(e) {
+                const buttonRect = this.getBoundingClientRect();
+                const colors = [
+                    'var(--chat-confetti-1)',
+                    'var(--chat-confetti-2)',
+                    'var(--chat-confetti-3)',
+                    'var(--chat-confetti-4)',
+                    'var(--chat-confetti-5)'
+                ];
+                
+                for (let i = 0; i < 15; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'chat-confetti';
+                    confetti.style.left = `${buttonRect.left + Math.random() * buttonRect.width}px`;
+                    confetti.style.top = `${buttonRect.top}px`;
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = `${0.5 + Math.random()}s`;
+                    confetti.style.setProperty('--delay', `${Math.random()}s`);
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 1000);
+                }
+            });
+        });
+        
+        // Simulate receiving a message (for demo purposes)
+        function simulateIncomingMessage() {
+            const users = [
+                {username: 'JaneDoe', avatar: '{% static "images/favicon.ico" %}'},
+                {username: 'JohnSmith', avatar: '{% static "images/favicon.ico" %}'},
+                {username: 'AliceCooper', avatar: '{% static "images/favicon.ico" %}'}
+            ];
+            
+            const messages = [
+                "Hey everyone! How's it going?",
+                "Just joined the chat. This looks great!",
+                "Has anyone tried the new feature yet?",
+                "I'll be hosting a Q&A session tomorrow at 3 PM",
+                "Thanks for the help earlier!"
+            ];
+            
+            const randomUser = users[Math.floor(Math.random() * users.length)];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            addMessageToChat({
+                user: {
+                    username: randomUser.username,
+                    profile: {
+                        avatar: randomUser.avatar
+                    }
+                },
+                content: randomMessage,
+                created: new Date().toISOString()
+            });
+        }
+        
+        // Add a message to the chat UI
+        function addMessageToChat(messageData) {
+            const messageContainer = document.getElementById('message-container');
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            
+            const avatarContent = messageData.user.profile.avatar ? 
+                `<img src="${messageData.user.profile.avatar}" alt="${messageData.user.username}">` :
+                `<div class="avatar">${messageData.user.username.charAt(0).toUpperCase()}</div>`;
+            
+            const timestamp = new Date(messageData.created);
+            const timeString = timestamp.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            
+            messageElement.innerHTML = `
+                <div class="message-avatar">
+                    ${avatarContent}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author">${messageData.user.username}</span>
+                        <span class="message-timestamp">${timeString}</span>
+                    </div>
+                    <div class="message-text">
+                        ${messageData.content}
+                    </div>
+                </div>
+                <div class="message-actions">
+                    <button class="message-action confetti-trigger" data-tooltip="Add Reaction">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <button class="message-action confetti-trigger" data-tooltip="Reply">
+                        <i class="fas fa-reply"></i>
+                    </button>
+                    <button class="message-action confetti-trigger" data-tooltip="More">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                </div>
+            `;
+            
+            messageContainer.appendChild(messageElement);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+        
+        // Modal functions
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+        
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+        
+        // Create channel button
+        document.querySelectorAll('[data-tooltip="Create Channel"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                openModal('create-channel-modal');
+            });
+        });
+        
+        // Close modal buttons
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.overlay');
+                if (modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+        
+        // Create channel form
+        const createChannelForm = document.getElementById('create-channel-form');
+        if (createChannelForm) {
+            createChannelForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const channelName = document.getElementById('channel-name').value;
+                const channelType = document.getElementById('channel-type').value;
+                
+                // In a real app, you would send this to your backend
+                showToast({
+                    title: 'Channel Created',
+                    message: `${channelType === 'text' ? 'Text' : 'Voice'} channel #${channelName} was created`,
+                    type: 'success'
+                });
+                
+                closeModal('create-channel-modal');
+                this.reset();
+            });
+        }
+        
+        // Simulate incoming messages periodically
+        setInterval(simulateIncomingMessage, 15000);
+        
+        // Scroll to bottom of messages on load
+        const messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+    });
+
+    // Toast notification function (for demo purposes)
+    function showToast({title, message, type}) {
+        console.log(`[${type}] ${title}: ${message}`);
+        // In a real app, you would implement a proper toast notification
+    }
+</script>
+{% endblock %}

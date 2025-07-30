@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imgur-style Blog</title>
+  <style>
+        /* Reset */
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        }
+
+        body {
+        font-family: 'Arial', sans-serif;
+        background: #f0f0f0;
+        }
+
+        .header {
+        text-align: center;
+        padding: 2rem;
+        background: #1a1a1a;
+        color: white;
+        }
+
+        /* Dynamic Grid Layout */
+        .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+        }
+
+        /* Blog Cards (Randomized Heights) */
+        .blog-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        }
+
+        .blog-card:hover {
+        transform: scale(1.02);
+        }
+
+        .blog-card img {
+        width: 100%;
+        height: auto;
+        display: block;
+        }
+
+        .blog-content {
+        padding: 1rem;
+        }
+
+        .blog-content h3 {
+        margin-bottom: 0.5rem;
+        }
+
+        /* Randomized Heights (Simulate Imgur's Varied Posts) */
+        .blog-card:nth-child(odd) {
+        height: 300px;
+        }
+        .blog-card:nth-child(even) {
+        height: 250px;
+        }
+        .blog-card:nth-child(3n) {
+        height: 350px;
+        }
+
+        .loading-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.8),
+            rgba(255, 255, 255, 0.4)
+        );
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+        }
+
+        /* Animation for Loading Gradient */
+        @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+        }
+
+        .loading-gradient::after {
+        content: "Loading...";
+        font-size: 1.5rem;
+        color: #333;
+        animation: pulse 1.5s infinite;
+        }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1>Imgur-style Blog</h1>
+  </header>
+
+  <!-- Blog Grid (Dynamic Cards) -->
+  <main class="blog-grid" id="blogGrid">
+    <!-- Cards will be injected here by JavaScript -->
+  </main>
+
+  <!-- Loading Gradient (Shown while content loads) -->
+  <div class="loading-gradient" id="loadingGradient"></div>
+
+    <script>const blogGrid = document.getElementById('blogGrid');
+        const loadingGradient = document.getElementById('loadingGradient');
+        
+        // Simulate blog posts (in a real app, fetch from an API)
+        const blogPosts = [
+          { id: 1, title: "Funny Cat Meme", img: "https://i.imgur.com/abc123.jpg" },
+          { id: 2, title: "Epic Gaming Moment", img: "https://i.imgur.com/def456.jpg" },
+          { id: 3, title: "Travel Adventure", img: "https://i.imgur.com/ghi789.jpg" },
+          // Add more posts...
+        ];
+        
+        // Function to render blog cards
+        function renderBlogPosts() {
+          blogPosts.forEach(post => {
+            const card = document.createElement('div');
+            card.className = 'blog-card';
+            card.innerHTML = `
+              <img src="${post.img}" alt="${post.title}" loading="lazy">
+              <div class="blog-content">
+                <h3>${post.title}</h3>
+                <p>Lorem ipsum dolor sit amet...</p>
+              </div>
+            `;
+            blogGrid.appendChild(card);
+          });
+        }
+        
+        // Simulate loading delay (3 seconds)
+        setTimeout(() => {
+          renderBlogPosts();
+          loadingGradient.style.display = 'none'; // Hide gradient after load
+        }, 3000);
+        
+    </script>
+</body>
+</html>

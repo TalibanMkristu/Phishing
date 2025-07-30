@@ -1,0 +1,353 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Topics component variables */
+        --topics-primary: #5865F2;
+        --topics-primary-hover: #4752C4;
+        --topics-bg: #36393F;
+        --topics-card-bg: #2F3136;
+        --topics-accent: #40444B;
+        --topics-text: #FFFFFF;
+        --topics-text-muted: #B9BBBE;
+        --topics-border: #40444B;
+        --topics-highlight: rgba(88, 101, 242, 0.1);
+        
+        /* Spacing */
+        --topics-spacing-xs: 8px;
+        --topics-spacing-sm: 12px;
+        --topics-spacing-md: 16px;
+        --topics-spacing-lg: 24px;
+        
+        /* Border radius */
+        --topics-radius-sm: 4px;
+        --topics-radius-md: 8px;
+        --topics-radius-lg: 12px;
+        
+        /* Shadows */
+        --topics-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --topics-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        /* Transitions */
+        --topics-transition-fast: 100ms ease;
+        --topics-transition-normal: 200ms ease;
+    }
+
+    /* Topics container */
+    .topics-container {
+        background-color: var(--topics-card-bg);
+        border-radius: var(--topics-radius-lg);
+        padding: var(--topics-spacing-md);
+        box-shadow: var(--topics-shadow-md);
+        max-height: 80vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--topics-accent) transparent;
+    }
+
+    .topics-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .topics-container::-webkit-scrollbar-thumb {
+        background-color: var(--topics-accent);
+        border-radius: var(--topics-radius-full);
+    }
+
+    /* Header */
+    .topics-container h3 {
+        color: var(--topics-text);
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: var(--topics-spacing-sm);
+        position: relative;
+        display: inline-block;
+    }
+
+    .topics-container h3:after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--topics-primary), #3BA55C);
+        border-radius: var(--topics-radius-full);
+    }
+
+    /* Divider */
+    .topics-container hr {
+        border: none;
+        height: 1px;
+        background-color: var(--topics-border);
+        margin: var(--topics-spacing-sm) 0 var(--topics-spacing-md);
+        opacity: 0.3;
+    }
+
+    /* All topics link */
+    .all-topics-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--topics-spacing-sm) var(--topics-spacing-md);
+        background-color: var(--topics-highlight);
+        border-radius: var(--topics-radius-sm);
+        margin-bottom: var(--topics-spacing-md);
+        color: var(--topics-primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all var(--topics-transition-normal);
+    }
+
+    .all-topics-link:hover {
+        background-color: var(--topics-primary);
+        color: white;
+        transform: translateX(4px);
+    }
+
+    .all-topics-link span {
+        background-color: var(--topics-primary);
+        color: white;
+        padding: 2px 8px;
+        border-radius: var(--topics-radius-full);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .all-topics-link:hover span {
+        background-color: white;
+        color: var(--topics-primary);
+    }
+
+    /* Individual topics */
+    .topic-item {
+        margin-bottom: var(--topics-spacing-xs);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .topic-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .topic-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--topics-spacing-sm) var(--topics-spacing-md);
+        color: var(--topics-text);
+        text-decoration: none;
+        border-radius: var(--topics-radius-sm);
+        transition: all var(--topics-transition-fast);
+        position: relative;
+        z-index: 1;
+    }
+
+    .topic-link:hover {
+        background-color: var(--topics-highlight);
+        color: var(--topics-primary);
+    }
+
+    .topic-link:before {
+        content: '#';
+        margin-right: var(--topics-spacing-xs);
+        color: var(--topics-primary);
+    }
+
+    .topic-link span {
+        background-color: var(--topics-accent);
+        color: var(--topics-text-muted);
+        padding: 2px 8px;
+        border-radius: var(--topics-radius-full);
+        font-size: 12px;
+        font-weight: 600;
+        transition: all var(--topics-transition-fast);
+    }
+
+    .topic-link:hover span {
+        background-color: var(--topics-primary);
+        color: white;
+    }
+
+    /* Active topic state */
+    .topic-link.active {
+        background-color: var(--topics-highlight);
+        color: var(--topics-primary);
+        font-weight: 600;
+    }
+
+    .topic-link.active span {
+        background-color: var(--topics-primary);
+        color: white;
+    }
+
+    /* Animation for topic items */
+    @keyframes topicIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .topic-item {
+        animation: topicIn 200ms ease-out forwards;
+        animation-delay: calc(var(--index) * 50ms);
+    }
+
+    /* Search/filter input */
+    .topics-search {
+        position: relative;
+        margin-bottom: var(--topics-spacing-md);
+    }
+
+    .topics-search input {
+        width: 100%;
+        padding: var(--topics-spacing-sm) var(--topics-spacing-md) var(--topics-spacing-sm) 36px;
+        background-color: var(--topics-accent);
+        border: none;
+        border-radius: var(--topics-radius-sm);
+        color: var(--topics-text);
+        font-size: 14px;
+    }
+
+    .topics-search input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--topics-primary);
+    }
+
+    .topics-search:before {
+        content: '\f002';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--topics-text-muted);
+        font-size: 14px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .topics-container {
+            max-height: none;
+        }
+    }
+
+    /* Shimmer loading effect */
+    @keyframes shimmer {
+        0% { background-position: -468px 0 }
+        100% { background-position: 468px 0 }
+    }
+
+    .topic-skeleton {
+        height: 40px;
+        margin-bottom: var(--topics-spacing-xs);
+        border-radius: var(--topics-radius-sm);
+        animation: shimmer 1.5s infinite linear;
+        background: linear-gradient(to right, var(--topics-card-bg) 8%, var(--topics-accent) 18%, var(--topics-card-bg) 33%);
+        background-size: 800px 104px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topics-container">
+    <h3>Trending Topics</h3>
+    <hr>
+    
+    <!-- Search input -->
+    <div class="topics-search">
+        <input type="text" placeholder="Search topics..." id="topics-search-input">
+    </div>
+    
+    <a href="{% url 'chat:zchathome' %}" class="all-topics-link">
+        All Topics
+        <span>{{topics.count}}</span>
+    </a>
+    
+    {% for topic in topics %}
+    <div class="topic-item" style="--index: {{forloop.counter}}">
+        <a href="{% url 'chat:zchathome' %}?q={{topic.name}}" class="topic-link {% if request.GET.q == topic.name %}active{% endif %}">
+            {{topic.name}}
+            <span>{{topic.room_set.all.count}}</span>
+        </a>
+    </div>
+    {% empty %}
+    <div style="color: var(--topics-text-muted); text-align: center; padding: var(--topics-spacing-md);">
+        No topics found
+    </div>
+    {% endfor %}
+</div>
+
+<!-- For demo purposes - would be dynamic in real app -->
+<div id="topics-loading" style="display: none;">
+    {% for i in "12345" %}
+    <div class="topic-skeleton"></div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('topics-search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const topicItems = document.querySelectorAll('.topic-item');
+                
+                topicItems.forEach(item => {
+                    const topicName = item.querySelector('.topic-link').textContent.toLowerCase();
+                    if (topicName.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Simulate loading state (for demo)
+        if (document.querySelectorAll('.topic-item').length === 0) {
+            const container = document.querySelector('.topics-container');
+            const loading = document.getElementById('topics-loading');
+            
+            loading.style.display = 'block';
+            container.insertBefore(loading, container.querySelector('.all-topics-link').nextSibling);
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 1500);
+        }
+        
+        // Add active state to clicked topic
+        const topicLinks = document.querySelectorAll('.topic-link');
+        topicLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                topicLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Highlight current topic from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentTopic = urlParams.get('q');
+        if (currentTopic) {
+            topicLinks.forEach(link => {
+                if (link.textContent.trim().includes(currentTopic)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

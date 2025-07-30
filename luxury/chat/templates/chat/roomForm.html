@@ -1,0 +1,371 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Form specific variables */
+        --form-primary: #5865F2;
+        --form-primary-hover: #4752C4;
+        --form-primary-active: #3C45A5;
+        --form-bg: #36393F;
+        --form-card-bg: #2F3136;
+        --form-text: #FFFFFF;
+        --form-text-muted: #B9BBBE;
+        --form-border: #40444B;
+        --form-success: #3BA55C;
+        
+        /* Spacing */
+        --form-spacing-xs: 8px;
+        --form-spacing-sm: 12px;
+        --form-spacing-md: 16px;
+        --form-spacing-lg: 24px;
+        --form-spacing-xl: 32px;
+        
+        /* Border radius */
+        --form-radius-sm: 4px;
+        --form-radius-md: 8px;
+        --form-radius-lg: 12px;
+        
+        /* Shadows */
+        --form-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --form-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --form-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        --form-shadow-input: 0 0 0 2px rgba(88, 101, 242, 0.3);
+        
+        /* Transitions */
+        --form-transition-fast: 100ms ease;
+        --form-transition-normal: 200ms ease;
+        --form-transition-slow: 300ms ease;
+    }
+
+    /* Base container */
+    .room-form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - var(--header-height));
+        background-color: var(--form-bg);
+        padding: var(--form-spacing-xl);
+        font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    /* Form card with animation */
+    .room-form {
+        background-color: var(--form-card-bg);
+        border-radius: var(--form-radius-md);
+        padding: var(--form-spacing-xl);
+        width: 100%;
+        max-width: 580px;
+        box-shadow: var(--form-shadow-lg);
+        transform: translateY(-20px);
+        opacity: 0;
+        animation: fadeInUp 300ms ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .room-form h2 {
+        color: var(--form-text);
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: var(--form-spacing-lg);
+        text-align: center;
+    }
+
+    /* Form group styling */
+    .form-group {
+        margin-bottom: var(--form-spacing-lg);
+        position: relative;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: var(--form-spacing-sm);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--form-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Input fields */
+    .form-control {
+        width: 100%;
+        padding: var(--form-spacing-md);
+        background-color: rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--form-border);
+        border-radius: var(--form-radius-sm);
+        color: var(--form-text);
+        font-size: 16px;
+        transition: all var(--form-transition-normal);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--form-primary);
+        box-shadow: var(--form-shadow-input);
+    }
+
+    /* Datalist styling */
+    datalist {
+        position: absolute;
+        background-color: var(--form-card-bg);
+        border: 1px solid var(--form-border);
+        border-radius: var(--form-radius-sm);
+        padding: var(--form-spacing-sm) 0;
+        box-shadow: var(--form-shadow-md);
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 10;
+        margin-top: var(--form-spacing-xs);
+    }
+
+    datalist option {
+        padding: var(--form-spacing-sm) var(--form-spacing-md);
+        cursor: pointer;
+    }
+
+    datalist option:hover {
+        background-color: var(--form-primary);
+        color: white;
+    }
+
+    /* Submit button */
+    .submit-btn {
+        width: 100%;
+        padding: var(--form-spacing-md);
+        background-color: var(--form-primary);
+        color: white;
+        border: none;
+        border-radius: var(--form-radius-sm);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--form-transition-normal);
+        margin-top: var(--form-spacing-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn:hover {
+        background-color: var(--form-primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--form-shadow-md);
+    }
+
+    .submit-btn:active {
+        background-color: var(--form-primary-active);
+        transform: translateY(0);
+    }
+
+    /* Loading animation */
+    .submit-btn.loading::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--form-primary);
+        z-index: 1;
+    }
+
+    .submit-btn.loading::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        z-index: 2;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Success state */
+    .submit-btn.success {
+        background-color: var(--form-success);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .room-form-container {
+            padding: var(--form-spacing-md);
+        }
+        
+        .room-form {
+            padding: var(--form-spacing-lg);
+        }
+    }
+
+    /* Floating label animation */
+    .floating-label-group {
+        position: relative;
+        margin-bottom: var(--form-spacing-lg);
+    }
+
+    .floating-label {
+        position: absolute;
+        top: var(--form-spacing-md);
+        left: var(--form-spacing-md);
+        color: var(--form-text-muted);
+        transition: all var(--form-transition-fast);
+        pointer-events: none;
+        font-size: 16px;
+    }
+
+    .form-control:focus + .floating-label,
+    .form-control:not(:placeholder-shown) + .floating-label {
+        top: -10px;
+        left: var(--form-spacing-sm);
+        font-size: 12px;
+        background-color: var(--form-card-bg);
+        padding: 0 var(--form-spacing-xs);
+        color: var(--form-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="room-form-container">
+    <form class="room-form" method="POST" action="">
+        {% csrf_token %}
+        <h2>{% if room %}Edit Room{% else %}Create Room{% endif %}</h2>
+        
+        <div class="form-group floating-label-group">
+            <input 
+                type="text" 
+                id="room_topic" 
+                class="form-control" 
+                value="{{room.topic.name}}" 
+                name="topic" 
+                list="topic-list"
+                placeholder=" "
+                required
+            />
+            <label for="room_topic" class="floating-label">Enter a topic</label>
+            <datalist id="topic-list">
+                <select id="room-topic">
+                    {% for topic in topics %}
+                    <option value="{{topic}}">{{topic}}</option>
+                    {% endfor %}
+                </select>
+            </datalist>
+        </div>
+        
+        <div class="form-group floating-label-group">
+            {{form.name}}
+            <label for="id_name" class="floating-label">Room name</label>
+        </div>
+        
+        <div class="form-group floating-label-group">
+            {{form.description}}
+            <label for="id_description" class="floating-label">Room description</label>
+        </div>
+        
+        <button type="submit" class="submit-btn" id="submit-btn">
+            {% if room %}Update Room{% else %}Create Room{% endif %}
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add floating label functionality to all form fields
+        const formControls = document.querySelectorAll('.form-control');
+        formControls.forEach(control => {
+            // Initialize floating labels
+            if (control.value) {
+                const label = control.nextElementSibling;
+                label.style.top = '-10px';
+                label.style.left = '8px';
+                label.style.fontSize = '12px';
+                label.style.backgroundColor = 'var(--form-card-bg)';
+                label.style.padding = '0 4px';
+                label.style.color = 'var(--form-primary)';
+            }
+            
+            // Add focus/blur events
+            control.addEventListener('focus', function() {
+                const label = this.nextElementSibling;
+                label.style.color = 'var(--form-primary)';
+            });
+            
+            control.addEventListener('blur', function() {
+                const label = this.nextElementSibling;
+                if (!this.value) {
+                    label.style.color = 'var(--form-text-muted)';
+                }
+            });
+        });
+        
+        // Form submission loading state
+        const form = document.querySelector('.room-form');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        if (form && submitBtn) {
+            form.addEventListener('submit', function(e) {
+                // Show loading state
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                
+                // Simulate network request (remove in production)
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.classList.add('success');
+                    submitBtn.textContent = 'Success!';
+                    
+                    // In real app, you would submit the form here
+                    // this.submit();
+                }, 1500);
+                
+                // Prevent actual submission for this demo
+                e.preventDefault();
+            });
+        }
+        
+        // Enhance datalist functionality
+        const topicInput = document.getElementById('room_topic');
+        const datalist = document.getElementById('topic-list');
+        
+        if (topicInput && datalist) {
+            topicInput.addEventListener('input', function() {
+                const options = datalist.querySelectorAll('option');
+                let matchFound = false;
+                
+                options.forEach(option => {
+                    if (option.value.toLowerCase().includes(this.value.toLowerCase())) {
+                        matchFound = true;
+                    }
+                });
+                
+                if (matchFound) {
+                    this.setAttribute('list', 'topic-list');
+                } else {
+                    this.removeAttribute('list');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

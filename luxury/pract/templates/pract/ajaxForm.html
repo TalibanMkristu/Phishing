@@ -1,0 +1,97 @@
+{% extends 'kcof/home.html' %}
+{% load static %}
+{% block extra_style %}
+<style>
+    .pract-container{
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        text-align: center;
+    }
+    .number-container{
+        display: flex;
+        text-align: center;
+        /* flex-grow: 1; */
+    }
+    .side-ctn{
+        width: 50%;
+        height: 300px;
+        background-color: rgba(255, 255, 255, 0.326);
+        margin: 10px 3px;
+        border-radius: 10px;
+        backdrop-filter: blur(8px);
+        border: 0.5px solid goldenrod;
+    }
+    .side-ctn ul{
+        list-style: none;
+        cursor: pointer;
+    }
+    .form-container{
+        display: flex;
+        flex-direction: column;
+    }
+    .form-container #prac-form{
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        font-size: 1.5rem;
+    }
+    input{
+        min-height: 40px;
+        min-width: 45%;
+        margin: 5px 0;
+        border-radius: 10px;
+        border: none;
+    }
+    button{
+        max-width: 30%;
+        text-align: center;
+        padding: 6px 0;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <div class="pract-container">
+        <button onclick="getNumber()">GO</button>
+        <div class="number-container">
+            <div class="side-ctn">
+                <h3>Left</h3>
+                <ul id="ul-left">
+                
+                </ul>
+            </div>
+            <div class="side-ctn">
+                <h3>Right</h3>
+                <ul id="ul-right">
+                
+                </ul>
+            </div>
+        </div>
+        <div class="form-container">
+            <form action="" method="post" id="prac-form">
+                {% csrf_token %}
+                <label for="">
+                    Name:
+                    <input type="text" name="username">
+                </label>
+                <label for="">
+                    Password:
+                    <input type="text" name="password">
+                </label>
+                <button type="submit">submit</button>
+            </form>
+            <form class="form">
+                <input type="text" name="username" placeholder="username">
+                <input type="password" name="password" placeholder="password">
+                <input type="checkbox" name="termsconditions">
+
+                <button type="submit">submit</button>
+            </form>
+        </div>
+
+    </div>
+    <!-- <script src="{% static 'pract/numbers.js' %}"></script> -->
+    <script src="{% static 'pract/1.js' %}"></script>
+{% endblock %}

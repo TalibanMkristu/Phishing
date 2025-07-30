@@ -1,0 +1,507 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Chat room variables */
+        --chat-primary: #5865F2;
+        --chat-primary-hover: #4752C4;
+        --chat-danger: #ED4245;
+        --chat-danger-hover: #D8373A;
+        --chat-bg: #36393F;
+        --chat-card-bg: #2F3136;
+        --chat-accent: #40444B;
+        --chat-text: #FFFFFF;
+        --chat-text-muted: #B9BBBE;
+        --chat-border: #40444B;
+        
+        /* Spacing */
+        --chat-spacing-xs: 8px;
+        --chat-spacing-sm: 12px;
+        --chat-spacing-md: 16px;
+        --chat-spacing-lg: 24px;
+        --chat-spacing-xl: 32px;
+        
+        /* Border radius */
+        --chat-radius-sm: 4px;
+        --chat-radius-md: 8px;
+        --chat-radius-lg: 12px;
+        
+        /* Shadows */
+        --chat-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --chat-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --chat-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        
+        /* Transitions */
+        --chat-transition-fast: 100ms ease;
+        --chat-transition-normal: 200ms ease;
+        --chat-transition-slow: 300ms ease;
+    }
+
+    /* Base container */
+    .room-container {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: var(--chat-spacing-lg);
+        min-height: calc(100vh - var(--header-height));
+        background-color: var(--chat-bg);
+        padding: var(--chat-spacing-xl);
+        font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    /* Conversation area */
+    .conversation-corner {
+        background-color: var(--chat-card-bg);
+        border-radius: var(--chat-radius-lg);
+        padding: var(--chat-spacing-lg);
+        box-shadow: var(--chat-shadow-md);
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - var(--header-height) - var(--chat-spacing-xl) * 2);
+    }
+
+    .conversation-corner h4 {
+        color: var(--chat-text);
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: var(--chat-spacing-sm);
+        position: relative;
+        padding-bottom: var(--chat-spacing-sm);
+    }
+
+    .conversation-corner h4:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background-color: var(--chat-primary);
+        border-radius: var(--chat-radius-full);
+    }
+
+    .conversation-corner > p {
+        color: var(--chat-text-muted);
+        font-size: 14px;
+        margin-bottom: var(--chat-spacing-lg);
+        padding: var(--chat-spacing-sm) var(--chat-spacing-md);
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: var(--chat-radius-sm);
+    }
+
+    /* Message wrapper */
+    .message-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: var(--chat-spacing-sm);
+        margin-bottom: var(--chat-spacing-md);
+        scrollbar-width: thin;
+        scrollbar-color: var(--chat-accent) transparent;
+    }
+
+    .message-wrapper::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .message-wrapper::-webkit-scrollbar-thumb {
+        background-color: var(--chat-accent);
+        border-radius: var(--chat-radius-full);
+    }
+
+    .message-wrapper > h4 {
+        font-size: 16px;
+        color: var(--chat-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: var(--chat-spacing-md);
+    }
+
+    /* Individual messages */
+    .message-wrapper > div {
+        margin-bottom: var(--chat-spacing-md);
+        padding: var(--chat-spacing-sm);
+        border-radius: var(--chat-radius-sm);
+        transition: all var(--chat-transition-fast);
+        position: relative;
+    }
+
+    .message-wrapper > div:hover {
+        background-color: var(--chat-accent);
+    }
+
+    .message-wrapper small {
+        display: flex;
+        align-items: center;
+        color: var(--chat-text-muted);
+        font-size: 12px;
+        margin-bottom: var(--chat-spacing-xs);
+    }
+
+    .message-wrapper small:before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--chat-primary);
+        margin-right: var(--chat-spacing-xs);
+    }
+
+    .message-wrapper p {
+        color: var(--chat-text);
+        font-size: 15px;
+        line-height: 1.5;
+        margin-left: var(--chat-spacing-sm);
+        padding-left: var(--chat-spacing-sm);
+        border-left: 2px solid var(--chat-primary);
+    }
+
+    .message-wrapper hr {
+        border: none;
+        height: 1px;
+        background-color: var(--chat-border);
+        margin: var(--chat-spacing-sm) 0;
+        opacity: 0.5;
+    }
+
+    /* Delete button */
+    .message-wrapper button {
+        background-color: transparent;
+        border: 1px solid var(--chat-danger);
+        color: var(--chat-danger);
+        padding: 2px 8px;
+        border-radius: var(--chat-radius-sm);
+        font-size: 11px;
+        cursor: pointer;
+        transition: all var(--chat-transition-fast);
+        margin-left: var(--chat-spacing-sm);
+    }
+
+    .message-wrapper button:hover {
+        background-color: var(--chat-danger);
+        color: white;
+    }
+
+    /* Comment form */
+    .comment-form {
+        margin-top: auto;
+    }
+
+    .comment-form form {
+        display: flex;
+        position: relative;
+    }
+
+    .comment-form input {
+        flex: 1;
+        padding: var(--chat-spacing-md);
+        background-color: var(--chat-accent);
+        border: none;
+        border-radius: var(--chat-radius-md);
+        color: var(--chat-text);
+        font-size: 15px;
+        padding-right: 50px;
+        transition: all var(--chat-transition-normal);
+    }
+
+    .comment-form input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--chat-primary);
+    }
+
+    .comment-form input::placeholder {
+        color: var(--chat-text-muted);
+    }
+
+    .comment-form:after {
+        content: '⏎';
+        position: absolute;
+        right: var(--chat-spacing-md);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--chat-text-muted);
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    /* Participants section */
+    .participants {
+        background-color: var(--chat-card-bg);
+        border-radius: var(--chat-radius-lg);
+        padding: var(--chat-spacing-lg);
+        box-shadow: var(--chat-shadow-md);
+        height: fit-content;
+        position: sticky;
+        top: var(--chat-spacing-xl);
+    }
+
+    .participants h3 {
+        color: var(--chat-text);
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: var(--chat-spacing-md);
+        position: relative;
+        padding-bottom: var(--chat-spacing-sm);
+    }
+
+    .participants h3:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background-color: var(--chat-primary);
+        border-radius: var(--chat-radius-full);
+    }
+
+    .participants > div {
+        display: flex;
+        align-items: center;
+        padding: var(--chat-spacing-sm) 0;
+        border-bottom: 1px solid var(--chat-border);
+    }
+
+    .participants p {
+        color: var(--chat-text);
+        font-size: 14px;
+        margin-left: var(--chat-spacing-sm);
+    }
+
+    .participants small {
+        color: var(--chat-primary);
+        font-weight: 600;
+    }
+
+    /* Status indicators */
+    .participants > div:before {
+        content: '';
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #3BA55C;
+        margin-right: var(--chat-spacing-xs);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .room-container {
+            grid-template-columns: 1fr;
+            padding: var(--chat-spacing-md);
+            gap: var(--chat-spacing-md);
+        }
+        
+        .conversation-corner {
+            height: auto;
+            min-height: 70vh;
+        }
+        
+        .participants {
+            position: static;
+        }
+    }
+
+    /* Message animations */
+    @keyframes messageIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message-wrapper > div {
+        animation: messageIn 200ms ease-out forwards;
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+        display: flex;
+        padding: var(--chat-spacing-sm);
+        margin-bottom: var(--chat-spacing-md);
+    }
+
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: var(--chat-text-muted);
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 2px;
+        opacity: 0.4;
+    }
+
+    .typing-indicator span:nth-child(1) {
+        animation: pulse 1s infinite;
+    }
+    .typing-indicator span:nth-child(2) {
+        animation: pulse 1s infinite 0.2s;
+    }
+    .typing-indicator span:nth-child(3) {
+        animation: pulse 1s infinite 0.4s;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 0.4;
+            transform: translateY(0);
+        }
+        50% {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="room-container">
+    <div class="conversation-corner">
+        <h4>{{room.name}}</h4>
+        <p>{{room.description}}</p>
+        
+        <div class="message-wrapper">
+            <h4>zchat Replies</h4>
+            
+            <!-- Typing indicator (would be dynamic in real app) -->
+            <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            {% for room_message in room_messages %}
+            <div class="message">
+                <small>@{{room_message.user}} {{room_message.created|timesince}} ago</small>
+                <p>{{room_message.body}}</p>
+                {% if request.user == room_message.user %}
+                <a href="{% url 'delete-message' room_message.id %}">
+                    <button>Delete</button>
+                </a>
+                {% endif %}
+                <hr>
+            </div>
+            {% endfor %}              
+        </div>
+        
+        {% if request.user.is_authenticated %}
+        <div class="comment-form">
+            <form method="POST" action="">
+                {% csrf_token %}
+                <input type="text" name="body" placeholder="Write your message..." autocomplete="off"/>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="participants">
+        <h3>Participants</h3>
+        {% for participant in participants %}
+        <div class="participant">
+            <p><small>@</small>{{participant.username}}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-scroll to bottom of messages
+        const messageWrapper = document.querySelector('.message-wrapper');
+        if (messageWrapper) {
+            messageWrapper.scrollTop = messageWrapper.scrollHeight;
+        }
+        
+        // Message form submission on Enter
+        const commentForm = document.querySelector('.comment-form form');
+        if (commentForm) {
+            const input = commentForm.querySelector('input');
+            
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    // In a real app, you would submit via AJAX or standard form submission
+                    // For demo, we'll simulate a new message appearing
+                    simulateNewMessage(this.value);
+                    this.value = '';
+                    e.preventDefault();
+                }
+            });
+        }
+        
+        // Simulate receiving a new message (for demo)
+        function simulateNewMessage(content) {
+            const messageWrapper = document.querySelector('.message-wrapper');
+            if (!messageWrapper) return;
+            
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message';
+            newMessage.innerHTML = `
+                <small>@{{request.user.username}} just now</small>
+                <p>${content}</p>
+                <hr>
+            `;
+            
+            messageWrapper.appendChild(newMessage);
+            messageWrapper.scrollTop = messageWrapper.scrollHeight;
+            
+            // Simulate someone typing back
+            setTimeout(() => {
+                simulateResponse();
+            }, 2000);
+        }
+        
+        // Simulate a response (for demo)
+        function simulateResponse() {
+            const typingIndicator = document.querySelector('.typing-indicator');
+            if (!typingIndicator) return;
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'flex';
+            
+            // After delay, add response
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                
+                const responses = [
+                    "Interesting point!",
+                    "I agree with that.",
+                    "What do others think?",
+                    "Let me check on that.",
+                    "Thanks for sharing!"
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                const messageWrapper = document.querySelector('.message-wrapper');
+                
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                newMessage.innerHTML = `
+                    <small>@demo_user a few seconds ago</small>
+                    <p>${randomResponse}</p>
+                    <hr>
+                `;
+                
+                messageWrapper.appendChild(newMessage);
+                messageWrapper.scrollTop = messageWrapper.scrollHeight;
+            }, 1500 + Math.random() * 2000);
+        }
+        
+        // Highlight current user in participants list
+        const participants = document.querySelectorAll('.participant');
+        participants.forEach(participant => {
+            if (participant.textContent.includes('{{request.user.username}}')) {
+                participant.style.backgroundColor = 'rgba(88, 101, 242, 0.1)';
+                participant.style.borderRadius = 'var(--chat-radius-sm)';
+                participant.style.paddingLeft = 'var(--chat-spacing-sm)';
+            }
+        });
+    });
+</script>
+{% endblock %}

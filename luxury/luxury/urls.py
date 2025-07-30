@@ -16,9 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('base.urls', namespace='base')),
+    path('', include('kcof.urls', namespace='kcof')),
+    path('base/', include('base.urls', namespace='base')),
+    path('blog/', include('blog.urls', namespace='blog')),
+    path('events/', include('events.urls', namespace='events')),
+    path('chat/', include('chat.urls', namespace='chat')),
+    path('paypal/', include('paypal.standard.ipn.urls')),
+    path('practise/', include('pract.urls', namespace='pract')),
     
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

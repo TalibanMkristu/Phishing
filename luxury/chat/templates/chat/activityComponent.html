@@ -1,0 +1,327 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Activity component variables */
+        --activity-primary: #5865F2;
+        --activity-primary-hover: #4752C4;
+        --activity-danger: #ED4245;
+        --activity-danger-hover: #D8373A;
+        --activity-bg: #36393F;
+        --activity-card-bg: #2F3136;
+        --activity-accent: #40444B;
+        --activity-text: #FFFFFF;
+        --activity-text-muted: #B9BBBE;
+        --activity-border: #40444B;
+        --activity-highlight: rgba(88, 101, 242, 0.1);
+        
+        /* Spacing */
+        --activity-spacing-xs: 8px;
+        --activity-spacing-sm: 12px;
+        --activity-spacing-md: 16px;
+        --activity-spacing-lg: 24px;
+        
+        /* Border radius */
+        --activity-radius-sm: 4px;
+        --activity-radius-md: 8px;
+        --activity-radius-lg: 12px;
+        
+        /* Shadows */
+        --activity-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --activity-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        /* Transitions */
+        --activity-transition-fast: 100ms ease;
+        --activity-transition-normal: 200ms ease;
+        --activity-transition-slow: 300ms ease;
+    }
+
+    /* Activity container */
+    .activity-container {
+        background-color: var(--activity-card-bg);
+        border-radius: var(--activity-radius-lg);
+        padding: var(--activity-spacing-md);
+        box-shadow: var(--activity-shadow-md);
+        max-height: 80vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--activity-accent) transparent;
+    }
+
+    .activity-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .activity-container::-webkit-scrollbar-thumb {
+        background-color: var(--activity-accent);
+        border-radius: var(--activity-radius-full);
+    }
+
+    /* Header */
+    .activity-container h3 {
+        color: var(--activity-text);
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: var(--activity-spacing-sm);
+        position: relative;
+        display: inline-block;
+    }
+
+    .activity-container h3:after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--activity-primary), #3BA55C);
+        border-radius: var(--activity-radius-full);
+    }
+
+    /* Divider */
+    .activity-container hr {
+        border: none;
+        height: 1px;
+        background-color: var(--activity-border);
+        margin: var(--activity-spacing-sm) 0 var(--activity-spacing-md);
+        opacity: 0.3;
+    }
+
+    /* Activity items */
+    .activity-item {
+        padding: var(--activity-spacing-md);
+        margin-bottom: var(--activity-spacing-sm);
+        background-color: var(--activity-bg);
+        border-radius: var(--activity-radius-md);
+        transition: all var(--activity-transition-normal);
+        position: relative;
+        border-left: 3px solid transparent;
+    }
+
+    .activity-item:hover {
+        background-color: var(--activity-accent);
+        transform: translateX(4px);
+        border-left-color: var(--activity-primary);
+    }
+
+    .activity-item:last-child {
+        margin-bottom: 0;
+    }
+
+    /* User info */
+    .activity-user {
+        display: flex;
+        align-items: center;
+        margin-bottom: var(--activity-spacing-xs);
+    }
+
+    .activity-user a {
+        color: var(--activity-primary);
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .activity-user a:before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--activity-primary);
+        margin-right: var(--activity-spacing-xs);
+    }
+
+    .activity-time {
+        color: var(--activity-text-muted);
+        font-size: 12px;
+        margin-left: var(--activity-spacing-sm);
+    }
+
+    /* Room info */
+    .activity-room {
+        display: inline-block;
+        background-color: var(--activity-highlight);
+        color: var(--activity-primary);
+        padding: var(--activity-spacing-xs) var(--activity-spacing-sm);
+        border-radius: var(--activity-radius-sm);
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: var(--activity-spacing-xs);
+        transition: all var(--activity-transition-fast);
+    }
+
+    .activity-item:hover .activity-room {
+        background-color: var(--activity-primary);
+        color: white;
+    }
+
+    /* Delete button */
+    .activity-delete {
+        position: absolute;
+        top: var(--activity-spacing-md);
+        right: var(--activity-spacing-md);
+        opacity: 0;
+        transition: opacity var(--activity-transition-fast);
+    }
+
+    .activity-item:hover .activity-delete {
+        opacity: 1;
+    }
+
+    .activity-delete button {
+        background-color: transparent;
+        border: 1px solid var(--activity-danger);
+        color: var(--activity-danger);
+        padding: 2px 8px;
+        border-radius: var(--activity-radius-sm);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all var(--activity-transition-fast);
+    }
+
+    .activity-delete button:hover {
+        background-color: var(--activity-danger);
+        color: white;
+    }
+
+    /* Animation for activity items */
+    @keyframes activityIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .activity-item {
+        animation: activityIn 300ms ease-out forwards;
+        animation-delay: calc(var(--index) * 50ms);
+    }
+
+    /* Empty state */
+    .activity-empty {
+        text-align: center;
+        padding: var(--activity-spacing-lg);
+        color: var(--activity-text-muted);
+    }
+
+    .activity-empty i {
+        font-size: 24px;
+        margin-bottom: var(--activity-spacing-sm);
+        opacity: 0.5;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .activity-container {
+            max-height: none;
+        }
+    }
+
+    /* Shimmer loading effect */
+    @keyframes shimmer {
+        0% { background-position: -468px 0 }
+        100% { background-position: 468px 0 }
+    }
+
+    .activity-skeleton {
+        height: 80px;
+        margin-bottom: var(--activity-spacing-sm);
+        border-radius: var(--activity-radius-md);
+        animation: shimmer 1.5s infinite linear;
+        background: linear-gradient(to right, var(--activity-card-bg) 8%, var(--activity-accent) 18%, var(--activity-card-bg) 33%);
+        background-size: 800px 104px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="activity-container">
+    <h3>Recent Activity</h3>
+    <hr>
+    
+    {% for room_message in room_messages %}
+    <div class="activity-item" style="--index: {{forloop.counter}}">
+        <div class="activity-user">
+            <a href="{% url 'user-profile' room_message.user.id %}">@{{room_message.user}}</a>
+            <span class="activity-time">{{room_message.created|timesince}} ago</span>
+        </div>
+        
+        <p class="activity-message">{{room_message.body|truncatechars:120}}</p>
+        
+        <a href="{% url 'chat:zchathome' %}?q={{room_message.room.name}}" class="activity-room">
+            # {{room_message.room.name}}
+        </a>
+        
+        {% if request.user == room_message.user %}
+        <div class="activity-delete">
+            <a href="{% url 'delete-message' room_message.id %}">
+                <button>Delete</button>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="activity-empty">
+        <i class="fas fa-comment-slash"></i>
+        <p>No recent activity</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- For demo purposes - would be dynamic in real app -->
+<div id="activity-loading" style="display: none;">
+    {% for i in "123" %}
+    <div class="activity-skeleton"></div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simulate loading state (for demo)
+        if (document.querySelectorAll('.activity-item').length === 0) {
+            const container = document.querySelector('.activity-container');
+            const loading = document.getElementById('activity-loading');
+            
+            loading.style.display = 'block';
+            container.insertBefore(loading, container.querySelector('hr').nextSibling);
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 1500);
+        }
+        
+        // Add confirmation dialog for delete
+        const deleteButtons = document.querySelectorAll('.activity-delete button');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to delete this message?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Add click effect to activity items
+        const activityItems = document.querySelectorAll('.activity-item');
+        activityItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't navigate if clicking on delete button
+                if (e.target.closest('.activity-delete')) return;
+                
+                // In a real app, you might navigate to the message
+                console.log('Navigating to message...');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config 
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w=rb#=n42shl8w6)j0_c2m1_er(kvrpc$^y@1x@!51!940@(0v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -42,6 +43,16 @@ INSTALLED_APPS = [
 
     # my apps
     'base.apps.BaseConfig',
+    'kcof.apps.KcofConfig',
+    'events.apps.EventsConfig',
+    'chat.apps.ChatConfig',
+    'blog.apps.BlogConfig',
+    'pract.apps.PractConfig',
+    
+    #libraries installed
+    'paypal.standard.ipn',
+    
+
 ]
 
 MIDDLEWARE = [
@@ -81,12 +92,9 @@ WSGI_APPLICATION = 'luxury.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME':os.getenv('PGDATABASE'),
-        'USER':os.getenv('PGUSER'),
-        'PASSWORD':os.getenv('PGPASSWORD'),
-        'HOST':os.getenv('PGHOST'),
-        'PORT':os.getenv('PGPORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3'
+
     }
 }
 
@@ -127,8 +135,22 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR / 'static'), )
+STATIC_ROOT = os.path.join(BASE_DIR / 'staticfiles')
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# stripe configurations 
+# stripe settings 
+STRIPE_SECRET_KEY=config('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY=config('STRIPE_PUBLISHABLE_KEY')
+
+
+#paypal integration
+PAYPAL_RECEIVER_EMAIL = ''
+PAYPAL_TEST = True

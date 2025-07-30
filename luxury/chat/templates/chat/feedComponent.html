@@ -1,0 +1,375 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Feed component variables */
+        --feed-primary: #5865F2;
+        --feed-primary-hover: #4752C4;
+        --feed-danger: #ED4245;
+        --feed-danger-hover: #D8373A;
+        --feed-success: #3BA55C;
+        --feed-bg: #36393F;
+        --feed-card-bg: #2F3136;
+        --feed-accent: #40444B;
+        --feed-text: #FFFFFF;
+        --feed-text-muted: #B9BBBE;
+        --feed-border: #40444B;
+        
+        /* Spacing */
+        --feed-spacing-xs: 8px;
+        --feed-spacing-sm: 12px;
+        --feed-spacing-md: 16px;
+        --feed-spacing-lg: 24px;
+        --feed-spacing-xl: 32px;
+        
+        /* Border radius */
+        --feed-radius-sm: 4px;
+        --feed-radius-md: 8px;
+        --feed-radius-lg: 12px;
+        
+        /* Shadows */
+        --feed-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --feed-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --feed-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        
+        /* Transitions */
+        --feed-transition-fast: 100ms ease;
+        --feed-transition-normal: 200ms ease;
+        --feed-transition-slow: 300ms ease;
+    }
+
+    /* Feed container */
+    .room-specific {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--feed-spacing-lg);
+        padding: var(--feed-spacing-lg);
+        background-color: var(--feed-bg);
+    }
+
+    /* Message cards */
+    .room-specific > h4 {
+        grid-column: 1 / -1;
+        color: var(--feed-text);
+        font-size: 18px;
+        padding: var(--feed-spacing-md);
+        background-color: var(--feed-accent);
+        border-radius: var(--feed-radius-md);
+        box-shadow: var(--feed-shadow-sm);
+        animation: fadeIn 300ms ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Room cards */
+    .room-card {
+        background-color: var(--feed-card-bg);
+        border-radius: var(--feed-radius-lg);
+        padding: var(--feed-spacing-md);
+        box-shadow: var(--feed-shadow-md);
+        transition: all var(--feed-transition-normal);
+        position: relative;
+        overflow: hidden;
+        border-left: 4px solid var(--feed-primary);
+    }
+
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--feed-shadow-lg);
+    }
+
+    /* Room header with gradient */
+    .room-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--feed-primary), var(--feed-success));
+    }
+
+    /* Room name/link */
+    .room-card h5.my-h5-p {
+        margin: var(--feed-spacing-sm) 0;
+    }
+
+    .room-card h5.my-h5-p a {
+        color: var(--feed-text);
+        font-size: 18px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color var(--feed-transition-fast);
+        display: inline-block;
+        position: relative;
+    }
+
+    .room-card h5.my-h5-p a:after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--feed-primary);
+        transition: width var(--feed-transition-normal);
+    }
+
+    .room-card h5.my-h5-p a:hover {
+        color: var(--feed-primary);
+    }
+
+    .room-card h5.my-h5-p a:hover:after {
+        width: 100%;
+    }
+
+    /* Topic styling */
+    .room-card small h5.my-h5-p {
+        color: var(--feed-text-muted);
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0;
+        display: inline-block;
+        padding: var(--feed-spacing-xs) var(--feed-spacing-sm);
+        background-color: rgba(88, 101, 242, 0.1);
+        border-radius: var(--feed-radius-sm);
+    }
+
+    /* Host/user info */
+    .room-card > a > span {
+        color: var(--feed-primary);
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .room-card > a > span:before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--feed-success);
+        margin-right: var(--feed-spacing-xs);
+    }
+
+    /* Action buttons */
+    .room-actions {
+        position: absolute;
+        top: var(--feed-spacing-md);
+        right: var(--feed-spacing-md);
+        display: flex;
+        gap: var(--feed-spacing-xs);
+        opacity: 0;
+        transition: opacity var(--feed-transition-fast);
+    }
+
+    .room-card:hover .room-actions {
+        opacity: 1;
+    }
+
+    .room-actions a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--feed-accent);
+        color: var(--feed-text);
+        transition: all var(--feed-transition-fast);
+    }
+
+    .room-actions a:hover {
+        transform: scale(1.1);
+    }
+
+    .room-actions a:first-child {
+        background-color: rgba(59, 165, 92, 0.1);
+        color: var(--feed-success);
+    }
+
+    .room-actions a:last-child {
+        background-color: rgba(237, 66, 69, 0.1);
+        color: var(--feed-danger);
+    }
+
+    /* Divider */
+    .room-specific hr {
+        display: none;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .room-specific {
+            grid-template-columns: 1fr;
+            padding: var(--feed-spacing-md);
+        }
+    }
+
+    /* Floating action button */
+    .fab {
+        position: fixed;
+        bottom: var(--feed-spacing-xl);
+        right: var(--feed-spacing-xl);
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: var(--feed-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--feed-shadow-lg);
+        cursor: pointer;
+        transition: all var(--feed-transition-normal);
+        z-index: 100;
+    }
+
+    .fab:hover {
+        transform: scale(1.1) rotate(90deg);
+        background-color: var(--feed-primary-hover);
+    }
+
+    /* Empty state */
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: var(--feed-spacing-xl);
+        color: var(--feed-text-muted);
+    }
+
+    /* Loading animation */
+    @keyframes shimmer {
+        0% { background-position: -468px 0 }
+        100% { background-position: 468px 0 }
+    }
+
+    .skeleton {
+        animation: shimmer 1.5s infinite linear;
+        background: linear-gradient(to right, var(--feed-card-bg) 8%, var(--feed-accent) 18%, var(--feed-card-bg) 33%);
+        background-size: 800px 104px;
+        border-radius: var(--feed-radius-md);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="room-specific">
+    {% for message in messages %}
+    <h4 class="notification-message">{{message}}</h4>
+    {% endfor %}
+    
+    {% for room in rooms %}
+    <div class="room-card">
+        {% if request.user == room.host %}
+        <div class="room-actions">
+            <a href="{% url 'update-room' room.id %}" title="Edit">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'delete-room' room.id %}" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+            </a>
+        </div>
+        {% endif %}
+        
+        <a href="{% url 'user-profile' room.host.id %}">
+            <span>@{{room.host.username}}</span>
+        </a>
+        
+        <h5 class="my-h5-p">
+            <a href="{% url 'zchatroom' room.id %}"># {{room.name}}</a>
+        </h5>
+        
+        <small>
+            <h5 class="my-h5-p">{{room.topic.name}}</h5>
+        </small>
+        
+        <div class="room-stats">
+            <small>{{room.participants.count}} participants</small>
+            <small>{{room.room_messages.count}} messages</small>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="fas fa-comment-slash" style="font-size: 48px; margin-bottom: 16px;"></i>
+        <h4>No rooms found</h4>
+        <p>Be the first to create a room!</p>
+    </div>
+    {% endfor %}
+    
+    <a href="{% url 'create-room' %}" class="fab">
+        <i class="fas fa-plus"></i>
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to room cards
+        const roomCards = document.querySelectorAll('.room-card');
+        roomCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = 'var(--feed-shadow-lg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = 'var(--feed-shadow-md)';
+            });
+        });
+        
+        // Add click animation to FAB
+        const fab = document.querySelector('.fab');
+        if (fab) {
+            fab.addEventListener('click', function(e) {
+                // Ripple effect
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                this.appendChild(ripple);
+                
+                // Remove ripple after animation
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        }
+        
+        // Lazy loading for room images (would be implemented with real images)
+        const lazyLoadObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // In a real app, you would load the actual image here
+                    entry.target.classList.add('loaded');
+                    lazyLoadObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        // Simulate loading state (for demo)
+        if (roomCards.length === 0) {
+            // Show skeleton loading if no rooms exist
+            const roomSpecific = document.querySelector('.room-specific');
+            for (let i = 0; i < 3; i++) {
+                const skeleton = document.createElement('div');
+                skeleton.className = 'room-card skeleton';
+                skeleton.style.height = '180px';
+                roomSpecific.insertBefore(skeleton, roomSpecific.firstChild);
+            }
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                document.querySelectorAll('.skeleton').forEach(el => el.remove());
+            }, 1500);
+        }
+    });
+</script>
+{% endblock %}

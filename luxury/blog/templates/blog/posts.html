@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taliban Code - Blog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #6F4E37; /* Coffee brown */
+            --secondary: #C4A484; /* Light coffee */
+            --accent: #E5B367; /* Golden accent */
+            --text: #2D1B0E; /* Dark brown text */
+            --light: #F5F5DC; /* Beige background */
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .blog-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .blog-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease;
+        }
+        
+        .blog-title {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .blog-title:after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 4px;
+            background: var(--accent);
+            bottom: -10px;
+            left: 25%;
+            border-radius: 2px;
+        }
+        
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .post-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .post-card:hover .post-image {
+            transform: scale(1.05);
+        }
+        
+        .post-content {
+            padding: 1.5rem;
+        }
+        
+        .post-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .post-excerpt {
+            color: var(--text);
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+        
+        .read-more {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .read-more:hover {
+            background: var(--accent);
+            color: var(--text);
+            transform: translateY(-3px);
+        }
+        
+        .confetti-hover {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .post-card {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        /* Delay animations for each card */
+        .post-card:nth-child(1) { animation-delay: 0.1s; }
+        .post-card:nth-child(2) { animation-delay: 0.3s; }
+        .post-card:nth-child(3) { animation-delay: 0.5s; }
+        .post-card:nth-child(4) { animation-delay: 0.7s; }
+        .post-card:nth-child(5) { animation-delay: 0.9s; }
+        .post-card:nth-child(6) { animation-delay: 1.1s; }
+        
+        /* Cute features */
+        .coffee-stain {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(111, 78, 55, 0.1);
+            border-radius: 50%;
+            filter: blur(10px);
+            z-index: -1;
+        }
+        
+        .stain-1 {
+            top: 10%;
+            left: 5%;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .stain-2 {
+            bottom: 15%;
+            right: 8%;
+            width: 80px;
+            height: 80px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .blog-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    {% block extra_style %}{% endblock %}
+</head>
+<body>
+    <div class="blog-container">
+        <div class="blog-header">
+            <h1 class="blog-title">Taliban Code Blog</h1>
+            <p>Discover the rich stories behind our coffee beans and brewing techniques</p>
+        </div>
+        
+        <div class="posts-grid" id="postsContainer">
+            <!-- Posts will be dynamically inserted here -->
+             {% if blogs %}
+                {% for blog in blogs %}
+                <div class="post-card">
+                    <img src="{{blog.image.url}}" alt="{{blog.title}}" class="post-image">
+                    <div class="post-content">
+                        <h3 class="post-title"> {{blog.title}} </h3>
+                        <p class="post-excerpt"> {{blog.body|truncatewords:20}} </p>
+                        <div class="post-meta">
+                            <span> {{blog.created_at|date:"F j, Y"}} </span>
+                            <span> {{read_time}} </span>
+                        </div>
+                        <a href="{% url 'blog:indposts' blog.id %}" class="read-more confetti-hover">Read More</a>
+                    </div>
+                </div>
+                {% endfor %}
+             {% endif %}
+        </div>
+        
+        <!-- Decorative coffee stains -->
+        <div class="coffee-stain stain-1"></div>
+        <div class="coffee-stain stain-2"></div>
+    </div>
+
+    <script>
+        // Sample data - replace with your actual database data
+        const blogPosts = [
+            {
+                id: 1,
+                title: "The Art of Afghan Coffee Brewing",
+                excerpt: "Discover the traditional methods of preparing coffee in Afghanistan and how we've perfected them.",
+                imageUrl: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5",
+                date: "May 15, 2023",
+                author: "Ahmad Shah",
+                readTime: "5 min read"
+            },
+            {
+                id: 2,
+                title: "From Bean to Cup: Our Ethical Sourcing",
+                excerpt: "Learn about our direct trade relationships with Afghan coffee farmers and their communities.",
+                imageUrl: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735",
+                date: "April 28, 2023",
+                author: "Fatima Noori",
+                readTime: "7 min read"
+            },
+            {
+                id: 3,
+                title: "The Unique Flavors of Taliban Coffee Blends",
+                excerpt: "Explore the distinctive flavor profiles that make our coffee stand out from the rest.",
+                imageUrl: "https://images.unsplash.com/photo-1507133750040-4a8f57021571",
+                date: "April 10, 2023",
+                author: "Karimullah Mohammadi",
+                readTime: "4 min read"
+            },
+            {
+                id: 4,
+                title: "Coffee Culture in Afghanistan",
+                excerpt: "How coffee plays a role in Afghan social gatherings and daily life.",
+                imageUrl: "https://images.unsplash.com/photo-1511920170033-f8396924c348",
+                date: "March 22, 2023",
+                author: "Leila Hassan",
+                readTime: "6 min read"
+            },
+            {
+                id: 5,
+                title: "Brewing the Perfect Cup at Home",
+                excerpt: "Step-by-step guide to recreating our signature flavors in your own kitchen.",
+                imageUrl: "https://images.unsplash.com/photo-1515442261605-65987783cb6a",
+                date: "March 5, 2023",
+                author: "Omar Khan",
+                readTime: "8 min read"
+            },
+            {
+                id: 6,
+                title: "The History of Coffee in Central Asia",
+                excerpt: "Tracing the journey of coffee through the Silk Road to Afghanistan.",
+                imageUrl: "https://images.unsplash.com/photo-1459755486867-b55449bb39ff",
+                date: "February 18, 2023",
+                author: "Yasmin Farhad",
+                readTime: "10 min read"
+            }
+        ];
+
+        // Function to render blog posts
+        function renderBlogPosts() {
+            const postsContainer = document.getElementById('postsContainer');
+            
+            blogPosts.forEach((post, index) => {
+                const postCard = document.createElement('div');
+                postCard.className = 'post-card';
+                postCard.innerHTML = `
+                    <img src="${post.imageUrl}" alt="${post.title}" class="post-image">
+                    <div class="post-content">
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-excerpt">${post.excerpt}</p>
+                        <div class="post-meta">
+                            <span>${post.date}</span>
+                            <span>${post.readTime}</span>
+                        </div>
+                        <a href="/post/${post.id}" class="read-more confetti-hover">Read More</a>
+                    </div>
+                `;
+                postsContainer.appendChild(postCar);
+            });
+            
+            // Add confetti effect to all links with confetti-hover class
+            setupConfettiEffects();
+        }
+
+        // Confetti effect setup
+        function setupConfettiEffects() {
+            const confettiLinks = document.querySelectorAll('.confetti-hover');
+            
+            confettiLinks.forEach(link => {
+                // Mouse enter effect
+                link.addEventListener('mouseenter', (e) => {
+                    const rect = link.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+                    
+                    confetti({
+                        particleCount: 30,
+                        spread: 60,
+                        origin: { 
+                            x: x / window.innerWidth,
+                            y: y / window.innerHeight
+                        },
+                        colors: ['#6F4E37', '#C4A484', '#E5B367', '#FFFFFF']
+                    });
+                });
+                
+                // Click effect (more intense)
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Remove this if you want actual navigation
+                    
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#6F4E37', '#C4A484', '#E5B367', '#FFFFFF']
+                    });
+                    
+                    // Navigate after a delay to see the confetti
+                    setTimeout(() => {
+                        window.location.href = link.href;
+                    }, 1000);
+                });
+            });
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBlogPosts();
+            
+            // Add cute coffee bean animation in background
+            createFloatingCoffeeBeans();
+        });
+
+        // Bonus cute feature: Floating coffee beans
+        function createFloatingCoffeeBeans() {
+            const container = document.querySelector('.blog-container');
+            const beanCount = 15;
+            
+            for (let i = 0; i < beanCount; i++) {
+                const bean = document.createElement('div');
+                bean.className = 'floating-bean';
+                bean.innerHTML = '☕';
+                
+                // Random positioning
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                const size = Math.random() * 20 + 10;
+                const duration = Math.random() * 20 + 20;
+                const delay = Math.random() * 5;
+                
+                bean.style.left = `${left}%`;
+                bean.style.top = `${top}%`;
+                bean.style.fontSize = `${size}px`;
+                bean.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                bean.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                container.appendChild(bean);
+            }
+            
+            // Add the float animation to styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0%, 100% {
+                        transform: translateY(0) rotate(0deg);
+                    }
+                    50% {
+                        transform: translateY(-20px) rotate(10deg);
+                    }
+                }
+                
+                .floating-bean {
+                    position: absolute;
+                    pointer-events: none;
+                    z-index: -1;
+                    user-select: none;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,1180 @@
+{% extends "kcof/home.html" %}
+
+{% load static %}
+
+{% block extra_style %}
+<style>
+    /* Base styles from main template */
+    .donation-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Donation Hero Section */
+    .donation-hero {
+        text-align: center;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .donation-hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--gold);
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+
+    .donation-hero h1 span {
+        color: var(--aqua);
+    }
+
+    .donation-hero p {
+        font-size: 1.3rem;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+    }
+
+    .donation-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid var(--gold);
+        border-radius: 10px;
+        padding: 1.5rem;
+        min-width: 200px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(255, 215, 0, 0.2);
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card h3 {
+        font-size: 2rem;
+        color: var(--aqua);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+        font-size: 1rem;
+        color: var(--gold);
+        opacity: 0.8;
+    }
+
+    /* Payment Methods Section */
+    .donation-options {
+        margin: 4rem 0;
+    }
+
+    .donation-options h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        color: var(--gold);
+    }
+
+    .payment-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .payment-card {
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid var(--gold);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .payment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+    }
+
+    .payment-header {
+        background: rgba(255, 215, 0, 0.1);
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gold);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .payment-header i {
+        font-size: 2rem;
+        color: var(--gold);
+    }
+
+    .payment-header h3 {
+        font-size: 1.5rem;
+        color: var(--aqua);
+    }
+
+    .payment-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--aqua);
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.8rem;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--gold);
+        border-radius: 5px;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--aqua);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+
+    .donate-btn {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .stripe-btn {
+        background: linear-gradient(135deg, #6772e5, #5469d4);
+        color: white;
+    }
+
+    .stripe-btn:hover {
+        background: linear-gradient(135deg, #5469d4, #3a4fcd);
+        transform: translateY(-2px);
+    }
+
+    .mpesa-btn {
+        background: linear-gradient(135deg, #32CD32, #228B22);
+        color: white;
+    }
+
+    .mpesa-btn:hover {
+        background: linear-gradient(135deg, #228B22, #006400);
+        transform: translateY(-2px);
+    }
+
+    .wise-btn {
+        background: linear-gradient(135deg, #00b2ff, #0066ff);
+        color: white;
+        text-decoration: none;
+    }
+
+    .wise-btn:hover {
+        background: linear-gradient(135deg, #0066ff, #0044cc);
+        transform: translateY(-2px);
+    }
+
+    .payment-note {
+        font-size: 0.9rem;
+        color: var(--gold);
+        margin-top: 1rem;
+        text-align: center;
+        opacity: 0.8;
+    }
+
+    /* Stripe Elements */
+    .StripeElement {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--gold);
+        border-radius: 5px;
+        padding: 0.8rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .StripeElement--focus {
+        border-color: var(--aqua);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+
+    .stripe-errors {
+        color: #ff3860;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        min-height: 1.5rem;
+    }
+
+    /* Crypto Options */
+    .crypto-options {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .crypto-option {
+        flex: 1;
+        text-align: center;
+        padding: 0.8rem;
+        border: 1px solid var(--gold);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .crypto-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--gold);
+    }
+
+    .crypto-option span {
+        display: block;
+        color: var(--aqua);
+    }
+
+    .crypto-option.active {
+        background: rgba(255, 215, 0, 0.1);
+        border-color: var(--aqua);
+    }
+
+    .crypto-option:hover {
+        background: rgba(255, 215, 0, 0.1);
+    }
+
+    .crypto-address {
+        display: none;
+    }
+
+    .crypto-address.active {
+        display: block;
+    }
+
+    .address-box {
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--gold);
+        border-radius: 5px;
+        padding: 0.8rem;
+        margin: 1rem 0;
+    }
+
+    .address-box code {
+        flex: 1;
+        word-break: break-all;
+        color: var(--aqua);
+    }
+
+    .copy-btn {
+        background: none;
+        border: none;
+        color: var(--gold);
+        cursor: pointer;
+        font-size: 1rem;
+        margin-left: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+        color: var(--aqua);
+        transform: scale(1.1);
+    }
+
+    .qr-code {
+        text-align: center;
+        margin: 1rem 0;
+    }
+
+    .qr-code img {
+        max-width: 150px;
+        border: 1px solid var(--gold);
+        padding: 0.5rem;
+        background: white;
+    }
+
+    /* Bank Transfer */
+    .bank-details {
+        text-align: center;
+    }
+
+    .bank-info {
+        text-align: left;
+        margin-bottom: 1.5rem;
+    }
+
+    .bank-info p {
+        margin-bottom: 0.8rem;
+        color: var(--aqua);
+    }
+
+    .bank-info strong {
+        color: var(--gold);
+    }
+
+    .copy-bank-btn {
+        background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+        color: var(--black);
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 0 auto;
+    }
+
+    .copy-bank-btn:hover {
+        background: linear-gradient(135deg, var(--aqua), var(--dark-aqua));
+        transform: translateY(-2px);
+    }
+
+    /* Impact Section */
+    .donation-impact {
+        margin: 5rem 0;
+    }
+
+    .donation-impact h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--gold);
+    }
+
+    .impact-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .impact-card {
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid var(--gold);
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .impact-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+    }
+
+    .impact-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 215, 0, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .impact-icon i {
+        font-size: 2.5rem;
+        color: var(--gold);
+    }
+
+    .impact-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--aqua);
+    }
+
+    .impact-card p {
+        color: var(--gold);
+        line-height: 1.6;
+    }
+
+    /* Testimonials */
+    .testimonials {
+        margin: 5rem 0;
+    }
+
+    .testimonials h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--gold);
+    }
+
+    .testimonial-slider {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .testimonial {
+        display: none;
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid var(--gold);
+        border-radius: 10px;
+        padding: 2rem;
+    }
+
+    .testimonial.active {
+        display: block;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .testimonial-content {
+        margin-bottom: 1.5rem;
+    }
+
+    .testimonial-content p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: var(--aqua);
+        font-style: italic;
+        margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .testimonial-author img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--gold);
+    }
+
+    .testimonial-author h4 {
+        color: var(--gold);
+        margin-bottom: 0.3rem;
+    }
+
+    .testimonial-author span {
+        color: var(--aqua);
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .testimonial-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .testimonial-prev,
+    .testimonial-next {
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .testimonial-prev:hover,
+    .testimonial-next:hover {
+        background: rgba(0, 255, 255, 0.1);
+        border-color: var(--aqua);
+        color: var(--aqua);
+    }
+
+    .testimonial-dots {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 215, 0, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .dot.active {
+        background: var(--gold);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .donation-hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .donation-options h2,
+        .donation-impact h2,
+        .testimonials h2 {
+            font-size: 2rem;
+        }
+
+        .payment-methods {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            min-width: 150px;
+            padding: 1rem;
+        }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="donation-container">
+    <section class="donation-hero">
+        <h1>Support <span>Taliban Code</span></h1>
+        <p>Your donation helps us continue producing more open-source projects and supporting local developers.</p>
+        <div class="donation-stats">
+            <div class="stat-card">
+                <i class="fas fa-coffee"></i>
+                <h3>1,200+</h3>
+                <p>Developers Supported</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-globe"></i>
+                <h3>50+</h3>
+                <p>Countries Reached</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-hand-holding-heart"></i>
+                <h3>$250k+</h3>
+                <p>Donations Collected</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="donation-options">
+        <h2>Choose Your Donation Method</h2>
+        <div class="payment-methods">
+            <!-- Stripe -->
+            <div class="payment-card" id="stripe-card">
+                <div class="payment-header">
+                    <i class="fab fa-cc-stripe"></i>
+                    <h3>Credit/Debit Card</h3>
+                </div>
+                <div class="payment-body" id="stripe-form">
+                    <form id="stripe-donation-form">
+                        <div class="form-group">
+                            <label for="stripe-amount">Amount ($)</label>
+                            <input type="number" id="stripe-amount" min="5" step="1" value="25" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stripe-email">Email</label>
+                            <input type="email" id="stripe-email" required>
+                        </div>
+                        <div id="card-element" class="stripe-card-element"></div>
+                        <div id="card-errors" class="stripe-errors" role="alert"></div>
+                        <button type="submit" class="donate-btn stripe-btn">
+                            <i class="fas fa-lock"></i> Donate Securely
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PayPal -->
+            <div class="payment-card" id="paypal-card">
+                <div class="payment-header">
+                    <i class="fab fa-paypal"></i>
+                    <h3>PayPal</h3>
+                </div>
+                <div class="payment-body">
+                    <div id="paypal-button-container"></div>
+                    <p class="payment-note">You'll be redirected to PayPal to complete your donation</p>
+                </div>
+            </div>
+
+            <!-- Mobile Money (M-Pesa) -->
+            <div class="payment-card" id="mpesa-card">
+                <div class="payment-header">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>M-Pesa</h3>
+                </div>
+                <div class="payment-body">
+                    <form id="mpesa-donation-form">
+                        <div class="form-group">
+                            <label for="mpesa-amount">Amount ($)</label>
+                            <input type="number" id="mpesa-amount" min="1" step="1" value="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mpesa-phone">Phone Number</label>
+                            <input type="tel" id="mpesa-phone" placeholder="e.g., 254712345678" required>
+                        </div>
+                        <button type="submit" class="donate-btn mpesa-btn">
+                            <i class="fas fa-mobile-alt"></i> Initiate Payment
+                        </button>
+                    </form>
+                    <div class="mpesa-instructions">
+                        <p>You'll receive a payment request on your phone</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cryptocurrency -->
+            <div class="payment-card" id="crypto-card">
+                <div class="payment-header">
+                    <i class="fab fa-bitcoin"></i>
+                    <h3>Cryptocurrency</h3>
+                </div>
+                <div class="payment-body">
+                    <div class="crypto-options">
+                        <div class="crypto-option active" data-crypto="bitcoin">
+                            <i class="fab fa-bitcoin"></i>
+                            <span>Bitcoin</span>
+                        </div>
+                        <div class="crypto-option" data-crypto="ethereum">
+                            <i class="fab fa-ethereum"></i>
+                            <span>Ethereum</span>
+                        </div>
+                        <div class="crypto-option" data-crypto="usdt">
+                            <i class="fas fa-coins"></i>
+                            <span>USDT</span>
+                        </div>
+                    </div>
+                    <div class="crypto-address-container">
+                        <div id="bitcoin-address" class="crypto-address active">
+                            <p>Send Bitcoin to:</p>
+                            <div class="address-box">
+                                <code>3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5</code>
+                                <button class="copy-btn" data-address="3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="{% static 'images/bitcoin-qr.png' %}" alt="Bitcoin QR Code">
+                            </div>
+                        </div>
+                        <div id="ethereum-address" class="crypto-address">
+                            <p>Send Ethereum to:</p>
+                            <div class="address-box">
+                                <code>0x71C7656EC7ab88b098defB751B7401B5f6d8976F</code>
+                                <button class="copy-btn" data-address="0x71C7656EC7ab88b098defB751B7401B5f6d8976F">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="{% static 'images/ethereum-qr.png' %}" alt="Ethereum QR Code">
+                            </div>
+                        </div>
+                        <div id="usdt-address" class="crypto-address">
+                            <p>Send USDT (ERC20) to:</p>
+                            <div class="address-box">
+                                <code>0x71C7656EC7ab88b098defB751B7401B5f6d8976F</code>
+                                <button class="copy-btn" data-address="0x71C7656EC7ab88b098defB751B7401B5f6d8976F">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="{% static 'images/usdt-qr.png' %}" alt="USDT QR Code">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Transfer -->
+            <div class="payment-card" id="bank-card">
+                <div class="payment-header">
+                    <i class="fas fa-university"></i>
+                    <h3>Bank Transfer</h3>
+                </div>
+                <div class="payment-body">
+                    <div class="bank-details">
+                        <div class="bank-info">
+                            <p><strong>Bank Name:</strong> International Commerce Bank</p>
+                            <p><strong>Account Name:</strong> Taliban Coffee Export Ltd</p>
+                            <p><strong>Account Number:</strong> 1234567890</p>
+                            <p><strong>SWIFT/BIC:</strong> ICBKUS33</p>
+                            <p><strong>IBAN:</strong> US33 ICBK 1234 5678 9012 3456</p>
+                        </div>
+                        <button class="copy-bank-btn">
+                            <i class="far fa-copy"></i> Copy All Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wise -->
+            <div class="payment-card" id="wise-card">
+                <div class="payment-header">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>Wise Transfer</h3>
+                </div>
+                <div class="payment-body">
+                    <div class="wise-details">
+                        <p>Send money through Wise to our account:</p>
+                        <div class="wise-info">
+                            <p><strong>Email:</strong> payments@talibancoffee.af</p>
+                            <p><strong>Recipient:</strong> Taliban Coffee Export Ltd</p>
+                        </div>
+                        <a href="https://wise.com" target="_blank" class="donate-btn wise-btn">
+                            <i class="fas fa-external-link-alt"></i> Go to Wise
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="donation-impact">
+        <h2>Your Donation Makes an Impact</h2>
+        <div class="impact-grid">
+            <div class="impact-card">
+                <div class="impact-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <h3>Support Farmers</h3>
+                <p>Your contribution directly supports Afghan coffee farmers and their families.</p>
+            </div>
+            <div class="impact-card">
+                <div class="impact-icon">
+                    <i class="fas fa-school"></i>
+                </div>
+                <h3>Community Projects</h3>
+                <p>Funds help build schools and infrastructure in coffee-growing regions.</p>
+            </div>
+            <div class="impact-card">
+                <div class="impact-icon">
+                    <i class="fas fa-coffee"></i>
+                </div>
+                <h3>Sustain Traditions</h3>
+                <p>Preserve traditional Afghan coffee cultivation methods.</p>
+            </div>
+            <div class="impact-card">
+                <div class="impact-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>Global Distribution</h3>
+                <p>Help us share Afghan coffee with the world.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <h2>What Donors Say</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial active">
+                <div class="testimonial-content">
+                    <p>"I donate monthly because I believe in supporting authentic Afghan products. The coffee is amazing!"</p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/donor1.jpg' %}" alt="Sarah K.">
+                        <div>
+                            <h4>Sarah K.</h4>
+                            <span>Monthly Donor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <p>"The transparency in how funds are used convinced me to contribute. Great cause!"</p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/donor2.jpg' %}" alt="Michael T.">
+                        <div>
+                            <h4>Michael T.</h4>
+                            <span>One-time Donor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <p>"As an Afghan expat, donating to Taliban Coffee helps me stay connected to my roots."</p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/donor3.jpg' %}" alt="Amina R.">
+                        <div>
+                            <h4>Amina R.</h4>
+                            <span>Recurring Donor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-nav">
+            <button class="testimonial-prev"><i class="fas fa-chevron-left"></i></button>
+            <div class="testimonial-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+            <button class="testimonial-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+</div>
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+<script>
+    // Stripe Integration
+    const stripe = Stripe('{{STRIPE_PUBLISHABLE_KEY}}');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+
+    const stripeForm = document.getElementById('stripe-donation-form');
+    stripeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const donateBtn = stripeForm.querySelector('button[type="submit"]');
+        donateBtn.disabled = true;
+        donateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        const {error, paymentMethod} = await stripe.createPaymentMethod({
+            type: 'card',
+            card: cardElement,
+            billing_details: {
+                email: document.getElementById('stripe-email').value
+            }
+        });
+        
+        if (error) {
+            document.getElementById('card-errors').textContent = error.message;
+            donateBtn.disabled = false;
+            donateBtn.innerHTML = '<i class="fas fa-lock"></i> Donate Securely';
+        } else {
+            // Send paymentMethod.id to your server
+            const amount = document.getElementById('stripe-amount').value * 100; // Convert to cents
+            const email = document.getElementById('stripe-email').value;
+            
+            try {
+                const response = await fetch('{% url "kcof:checkout" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        payment_method_id: paymentMethod.id,
+                        amount: amount,
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('card-errors').textContent = data.error;
+                    donateBtn.disabled = false;
+                    donateBtn.innerHTML = '<i class="fas fa-lock"></i> Donate Securely';
+                } else {
+                    // Confirm payment on the client
+                    const {error} = await stripe.confirmCardPayment(data.client_secret);
+                    
+                    if (error) {
+                        document.getElementById('card-errors').textContent = error.message;
+                        donateBtn.disabled = false;
+                        donateBtn.innerHTML = '<i class="fas fa-lock"></i> Donate Securely';
+                    } else {
+                        // Payment succeeded
+                        showSuccessMessage('Thank you for your donation!');
+                        stripeForm.reset();
+                        donateBtn.disabled = false;
+                        donateBtn.innerHTML = '<i class="fas fa-lock"></i> Donate Securely';
+                    }
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                document.getElementById('card-errors').textContent = 'An error occurred. Please try again.';
+                donateBtn.disabled = false;
+                donateBtn.innerHTML = '<i class="fas fa-lock"></i> Donate Securely';
+            }
+        }
+    });
+
+    // PayPal Integration
+    paypal.Buttons({
+        style: {
+            color: 'gold',
+            shape: 'pill',
+            label: 'donate',
+            height: 40
+        },
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '25.00' // Default amount
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                // Send donation data to your server
+                fetch('/process-paypal-donation/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        order_id: data.orderID,
+                        amount: details.purchase_units[0].amount.value,
+                        email: details.payer.email_address
+                    })
+                }).then(response => response.json())
+                  .then(data => {
+                      showSuccessMessage('Thank you for your donation!');
+                  });
+            });
+        }
+    }).render('#paypal-button-container');
+
+    // M-Pesa Form Handling
+    const mpesaForm = document.getElementById('mpesa-donation-form');
+    mpesaForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const donateBtn = mpesaForm.querySelector('button[type="submit"]');
+        donateBtn.disabled = true;
+        donateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Request...';
+        
+        const amount = document.getElementById('mpesa-amount').value;
+        const phone = document.getElementById('mpesa-phone').value;
+        
+        try {
+            const response = await fetch('/process-mpesa-donation/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    phone: phone
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                alert(data.error);
+                donateBtn.disabled = false;
+                donateBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Initiate Payment';
+            } else {
+                showSuccessMessage('Payment request sent to your phone!');
+                mpesaForm.reset();
+                donateBtn.disabled = false;
+                donateBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Initiate Payment';
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            alert('An error occurred. Please try again.');
+            donateBtn.disabled = false;
+            donateBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Initiate Payment';
+        }
+    });
+
+    // Crypto Address Switching
+    const cryptoOptions = document.querySelectorAll('.crypto-option');
+    cryptoOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove active class from all options
+            cryptoOptions.forEach(opt => opt.classList.remove('active'));
+            // Add active class to clicked option
+            option.classList.add('active');
+            
+            // Hide all address containers
+            document.querySelectorAll('.crypto-address').forEach(addr => {
+                addr.classList.remove('active');
+            });
+            
+            // Show selected address container
+            const cryptoType = option.getAttribute('data-crypto');
+            document.getElementById(`${cryptoType}-address`).classList.add('active');
+        });
+    });
+
+    // Copy Address Buttons
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const address = button.getAttribute('data-address');
+            navigator.clipboard.writeText(address).then(() => {
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            });
+        });
+    });
+
+    // Copy Bank Details Button
+    const copyBankBtn = document.querySelector('.copy-bank-btn');
+    copyBankBtn.addEventListener('click', () => {
+        const bankDetails = document.querySelector('.bank-info');
+        const textToCopy = bankDetails.innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalHTML = copyBankBtn.innerHTML;
+            copyBankBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                copyBankBtn.innerHTML = originalHTML;
+            }, 2000);
+        });
+    });
+
+    // Testimonial Slider
+    let currentTestimonial = 0;
+    const testimonials = document.querySelectorAll('.testimonial');
+    const dots = document.querySelectorAll('.dot');
+
+    function showTestimonial(index) {
+        testimonials.forEach(testimonial => testimonial.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        testimonials[index].classList.add('active');
+        dots[index].classList.add('active');
+        currentTestimonial = index;
+    }
+
+    document.querySelector('.testimonial-next').addEventListener('click', () => {
+        let nextIndex = currentTestimonial + 1;
+        if (nextIndex >= testimonials.length) nextIndex = 0;
+        showTestimonial(nextIndex);
+    });
+
+    document.querySelector('.testimonial-prev').addEventListener('click', () => {
+        let prevIndex = currentTestimonial - 1;
+        if (prevIndex < 0) prevIndex = testimonials.length - 1;
+        showTestimonial(prevIndex);
+    });
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showTestimonial(index);
+        });
+    });
+
+    // Auto-rotate testimonials
+    setInterval(() => {
+        let nextIndex = currentTestimonial + 1;
+        if (nextIndex >= testimonials.length) nextIndex = 0;
+        showTestimonial(nextIndex);
+    }, 8000);
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Show success message
+    function showSuccessMessage(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.innerHTML = `
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <p>${message}</p>
+            </div>
+        `;
+        document.body.appendChild(successDiv);
+        
+        setTimeout(() => {
+            successDiv.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            successDiv.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(successDiv);
+            }, 500);
+        }, 5000);
+    }
+
+    // Add success message styles dynamically
+    const successStyles = document.createElement('style');
+    successStyles.innerHTML = `
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 100, 0, 0.9);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .success-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .success-content {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .success-content i {
+            font-size: 1.5rem;
+            color: #00FF00;
+        }
+    `;
+    document.head.appendChild(successStyles);
+</script>
+{% endblock %}
+
+{% endblock %}

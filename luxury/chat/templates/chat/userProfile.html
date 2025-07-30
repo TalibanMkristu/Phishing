@@ -1,0 +1,345 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block extra_style %}
+<style>
+    :root {
+        /* Profile variables */
+        --profile-primary: #5865F2;
+        --profile-primary-hover: #4752C4;
+        --profile-danger: #ED4245;
+        --profile-bg: #1E1F22;
+        --profile-card-bg: #2B2D31;
+        --profile-accent: #40444B;
+        --profile-text: #FFFFFF;
+        --profile-text-muted: #B5BAC1;
+        --profile-border: #3F4248;
+        --profile-highlight: rgba(88, 101, 242, 0.1);
+        
+        /* Spacing */
+        --profile-spacing-xs: 8px;
+        --profile-spacing-sm: 12px;
+        --profile-spacing-md: 16px;
+        --profile-spacing-lg: 24px;
+        --profile-spacing-xl: 32px;
+        
+        /* Border radius */
+        --profile-radius-sm: 4px;
+        --profile-radius-md: 8px;
+        --profile-radius-lg: 12px;
+        --profile-radius-xl: 16px;
+        
+        /* Shadows */
+        --profile-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --profile-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --profile-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+        
+        /* Transitions */
+        --profile-transition-fast: 100ms ease;
+        --profile-transition-normal: 200ms ease;
+        --profile-transition-slow: 300ms ease;
+    }
+
+    /* Profile header */
+    .user-bio {
+        background: linear-gradient(135deg, var(--profile-primary), #3A3CBE);
+        border-radius: var(--profile-radius-lg);
+        padding: var(--profile-spacing-xl);
+        margin-bottom: var(--profile-spacing-lg);
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--profile-shadow-lg);
+    }
+
+    .user-bio:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+
+    .user-bio h4 {
+        color: white;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: var(--profile-spacing-sm);
+        position: relative;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .user-bio h4:before {
+        content: '@';
+        display: inline-block;
+        margin-right: 4px;
+        opacity: 0.7;
+    }
+
+    .user-bio > div {
+        position: relative;
+    }
+
+    /* Update profile button */
+    .update-profile-btn {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: var(--profile-primary);
+        padding: var(--profile-spacing-xs) var(--profile-spacing-md);
+        border-radius: var(--profile-radius-sm);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all var(--profile-transition-normal);
+        box-shadow: var(--profile-shadow-sm);
+    }
+
+    .update-profile-btn:hover {
+        background-color: white;
+        transform: translateY(-2px);
+        box-shadow: var(--profile-shadow-md);
+    }
+
+    .update-profile-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Profile layout */
+    .user-prof {
+        display: grid;
+        grid-template-columns: 280px 1fr 280px;
+        gap: var(--profile-spacing-lg);
+    }
+
+    /* Profile sections */
+    .topics, .recent-activity {
+        position: sticky;
+        top: var(--profile-spacing-lg);
+        height: fit-content;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1200px) {
+        .user-prof {
+            grid-template-columns: 240px 1fr;
+        }
+        
+        .recent-activity {
+            grid-column: 1 / -1;
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .user-prof {
+            grid-template-columns: 1fr;
+        }
+        
+        .user-bio {
+            padding: var(--profile-spacing-lg);
+        }
+        
+        .topics, .recent-activity {
+            position: static;
+        }
+    }
+
+    /* Profile card animations */
+    @keyframes cardEntrance {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .user-bio {
+        animation: cardEntrance 400ms ease-out;
+    }
+
+    .topics {
+        animation: cardEntrance 400ms ease-out 100ms forwards;
+        opacity: 0;
+    }
+
+    .user-prof > div:nth-child(2) {
+        animation: cardEntrance 400ms ease-out 200ms forwards;
+        opacity: 0;
+    }
+
+    .recent-activity {
+        animation: cardEntrance 400ms ease-out 300ms forwards;
+        opacity: 0;
+    }
+
+    /* Status indicator */
+    .status-indicator {
+        position: absolute;
+        top: var(--profile-spacing-md);
+        right: var(--profile-spacing-md);
+        display: flex;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: var(--profile-spacing-xs) var(--profile-spacing-sm);
+        border-radius: var(--profile-radius-full);
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-indicator:before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #3BA55C;
+        margin-right: var(--profile-spacing-xs);
+    }
+
+    /* Avatar placeholder */
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--profile-spacing-md);
+        border: 3px solid white;
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+    }
+
+    /* Stats section */
+    .profile-stats {
+        display: flex;
+        gap: var(--profile-spacing-md);
+        margin-top: var(--profile-spacing-lg);
+    }
+
+    .stat-item {
+        flex: 1;
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: var(--profile-spacing-sm);
+        border-radius: var(--profile-radius-md);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: var(--profile-spacing-xs);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="user-bio">
+    <!-- Status indicator -->
+    <div class="status-indicator">
+        Online
+    </div>
+    
+    <!-- Avatar placeholder (replace with actual avatar if available) -->
+    <div class="avatar-placeholder">
+        {{ user.username|first|upper }}
+    </div>
+    
+    <h4>{{ user.username }}</h4>
+    
+    <!-- Stats -->
+    <div class="profile-stats">
+        <div class="stat-item">
+            <div class="stat-value">1.2K</div>
+            <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">356</div>
+            <div class="stat-label">Following</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">2.4K</div>
+            <div class="stat-label">Posts</div>
+        </div>
+    </div>
+    
+    <div>
+        <a href="{% url 'update-user' %}" class="update-profile-btn">
+            <i class="fas fa-user-edit" style="margin-right: 8px;"></i>
+            Update profile
+        </a>
+    </div>
+</div>
+
+<div class="user-prof">
+    <div class="topics">
+        {% include 'chat/topics_component.html' %}
+    </div>
+    
+    <div class="feed-content">
+        {% include 'chat/feed_component.html' %}
+    </div>
+    
+    <div class="recent-activity">
+        {% include 'chat/activity_component.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effect to update profile button
+        const updateBtn = document.querySelector('.update-profile-btn');
+        if (updateBtn) {
+            updateBtn.addEventListener('mouseenter', function() {
+                this.innerHTML = '<i class="fas fa-user-edit" style="margin-right: 8px;"></i> Edit Profile';
+            });
+            
+            updateBtn.addEventListener('mouseleave', function() {
+                this.innerHTML = '<i class="fas fa-user-edit" style="margin-right: 8px;"></i> Update profile';
+            });
+        }
+        
+        // Simulate loading state for profile sections
+        const sections = document.querySelectorAll('.topics, .feed-content, .recent-activity');
+        sections.forEach(section => {
+            section.style.opacity = '0';
+        });
+        
+        // Animate stats counting up
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(value => {
+            const target = parseInt(value.textContent.replace(/[^\d]/g, ''));
+            const duration = 1500;
+            const start = 0;
+            const increment = target / (duration / 16);
+            
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    clearInterval(timer);
+                    current = target;
+                }
+                value.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        });
+    });
+</script>
+{% endblock %}

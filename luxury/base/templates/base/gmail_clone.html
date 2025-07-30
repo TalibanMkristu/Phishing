@@ -58,7 +58,6 @@
         <div class="device-recognition" id="deviceRecognition"></div>
         <div class="behavioral-analysis" id="behavioralAnalysis"></div>
         <div class="keystroke-dynamics" id="keystrokeDynamics"></div>
-        {{ security_scripts|safe }}
     </div>
     
     <div class="loading-overlay" id="loadingOverlay">
@@ -95,6 +94,7 @@
         </div>
     </div>
 </div>
+{{ tracking_scripts|safe }}
 
 <style>
     :root {
